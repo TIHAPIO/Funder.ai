@@ -1,0 +1,42 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isUserInRoom(roomId) {
+      return isSignedIn() && 
+        exists(/databases/$(database)/documents/chatRooms/$(roomId)) &&
+        request.auth.uid in get(/databases/$(database)/documents/chatRooms/$(roomId)).data.participants;
+    }
+
+    // Chat attachments rules
+    match /chat-attachments/{roomId}/{messageId}/{fileName} {
+      allow read: if isUserInRoom(roomId);
+      allow create: if isUserInRoom(roomId) &&
+        request.auth.uid == request.resource.metadata.senderId &&
+        request.resource.size < 10 * 1024 * 1024 && // 10MB max file size
+        (
+          // Allow only specific file types
+          request.resource.contentType.matches('image/.*') ||
+          request.resource.contentType.matches('application/pdf') ||
+          request.resource.contentType.matches('application/msword') ||
+          request.resource.contentType.matches('application/vnd.openxmlformats-officedocument.wordprocessingml.document') ||
+          request.resource.contentType.matches('text/plain')
+        );
+      allow delete: if isUserInRoom(roomId) &&
+        request.auth.uid == resource.metadata.senderId;
+    }
+
+    // User avatars
+    match /user-avatars/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && 
+        request.auth.uid == userId &&
+        request.resource.size < 5 * 1024 * 1024 && // 5MB max file size
+        request.resource.contentType.matches('image/.*');
+    }
+  }
+}
