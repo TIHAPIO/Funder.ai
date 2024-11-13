@@ -8,16 +8,17 @@ import { useTheme as useNextTheme } from 'next-themes';
 import {
   Globe,
   FileText,
-  Users,
-  Truck,
   Settings,
   LogOut,
   Home,
   ChevronRight,
   Sun,
-  Moon
+  Moon,
+  MessageSquare,
+  Database,
+  User,
 } from 'lucide-react';
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { useTheme } from '../providers/ThemeProvider';
 
 interface SidebarProps {
@@ -29,9 +30,8 @@ const navigation = [
   { name: 'Dashboard', href: '/', icon: Home },
   { name: 'Kampagnen', href: '/campaigns', icon: Globe },
   { name: 'Anfragen', href: '/requests', icon: FileText },
-  { name: 'Recruiter', href: '/recruiters', icon: Users },
-  { name: 'Transport', href: '/transport', icon: Truck },
-  { name: 'Ressourcen', href: '/resources', icon: FileText },
+  { name: 'Ressourcen', href: '/resources', icon: Database },
+  { name: 'Chat', href: '/chat', icon: MessageSquare },
 ];
 
 export function Sidebar({ isExpanded, setIsExpanded }: SidebarProps) {
@@ -39,6 +39,7 @@ export function Sidebar({ isExpanded, setIsExpanded }: SidebarProps) {
   const { logout } = useAuth();
   const { getTextClass } = useTheme();
   const { theme, setTheme } = useNextTheme();
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -113,7 +114,7 @@ export function Sidebar({ isExpanded, setIsExpanded }: SidebarProps) {
         </nav>
       </div>
 
-      <div className="flex-shrink-0 flex flex-col border-t border-border p-4 space-y-2">
+      <div className="flex-shrink-0 flex flex-col border-t border-border p-4 space-y-2 relative z-50">
         <Button
           variant="ghost"
           className={`
@@ -130,18 +131,65 @@ export function Sidebar({ isExpanded, setIsExpanded }: SidebarProps) {
           )}
           {isExpanded && (theme === 'dark' ? 'Light Mode' : 'Dark Mode')}
         </Button>
-        <Button
-          variant="ghost"
-          className={`
-            flex items-center hover:bg-accent
-            ${isExpanded ? 'w-full justify-start' : 'w-10 h-10 p-0 justify-center'}
-          `}
-          onClick={handleLogout}
-          title={!isExpanded ? 'Abmelden' : undefined}
-        >
-          <LogOut className={`h-5 w-5 ${isExpanded ? 'mr-3' : ''}`} />
-          {isExpanded && 'Abmelden'}
-        </Button>
+
+        {/* User Menu */}
+        <div className="relative">
+          <Button
+            variant="ghost"
+            className={`
+              flex items-center hover:bg-accent w-full
+              ${isExpanded ? 'justify-start' : 'w-10 h-10 p-0 justify-center'}
+            `}
+            onClick={() => setShowUserMenu(!showUserMenu)}
+          >
+            <User className={`h-5 w-5 ${isExpanded ? 'mr-3' : ''}`} />
+            {isExpanded && 'Profil'}
+          </Button>
+
+          {/* Dropdown Menu */}
+          {showUserMenu && (
+            <div 
+              className={`
+                absolute ${isExpanded ? 'right-0' : 'left-full ml-2'} top-full mt-2
+                w-48 bg-background border border-border rounded-md shadow-lg
+                transition-all duration-200 ease-in-out z-[9999]
+              `}
+            >
+              <div className="py-1">
+                <Link
+                  href="/profile"
+                  className="
+                    flex items-center px-4 py-2 text-sm hover:bg-accent
+                    transition-colors duration-150 ease-in-out
+                  "
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  Profil
+                </Link>
+                <Link
+                  href="/settings"
+                  className="
+                    flex items-center px-4 py-2 text-sm hover:bg-accent
+                    transition-colors duration-150 ease-in-out
+                  "
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Einstellungen
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="
+                    flex items-center w-full px-4 py-2 text-sm hover:bg-accent
+                    transition-colors duration-150 ease-in-out
+                  "
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Abmelden
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

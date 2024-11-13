@@ -1,8 +1,8 @@
 'use client';
 
-import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getAuth, Auth } from 'firebase/auth';
-import { getFirestore, Firestore } from 'firebase/firestore';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBT--90PdI5xYIqNERqAJlgj3wxmU_V004",
@@ -14,19 +14,11 @@ const firebaseConfig = {
   measurementId: "G-RRNGPTMDTZ"
 };
 
-let app: FirebaseApp;
-let auth: Auth;
-let db: Firestore;
+// Initialize Firebase
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-if (typeof window !== 'undefined') {
-  try {
-    app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-    auth = getAuth(app);
-    db = getFirestore(app);
-  } catch (error) {
-    console.error('Firebase initialization error:', error);
-    throw error;
-  }
-}
+// Initialize services
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 export { app, auth, db };

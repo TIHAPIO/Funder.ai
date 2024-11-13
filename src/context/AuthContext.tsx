@@ -1,123 +1,62 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
-import { 
-  User,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  sendPasswordResetEmail,
-  getIdToken
-} from 'firebase/auth';
-import { auth } from '@/lib/firebase';
-import { useRouter } from 'next/navigation';
-import { setAuthToken, removeAuthToken } from '@/lib/auth-utils';
+import { createContext, useContext, useState } from 'react';
+import { User } from 'firebase/auth';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  signUp: (email: string, password: string) => Promise<void>;
-  signIn: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (email: string, password: string, displayName: string) => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType>({} as AuthContextType);
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  loading: true,
+  login: async () => {},
+  signup: async () => {},
+  logout: async () => {},
+  resetPassword: async () => {},
+});
 
 export const useAuth = () => useContext(AuthContext);
 
+// Mock user for testing
+const mockUser = {
+  uid: 'test-user-id',
+  email: 'test@example.com',
+  displayName: 'Test User',
+  photoURL: null,
+  emailVerified: true,
+  getIdToken: () => Promise.resolve('mock-token'),
+} as User;
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
+  // Initialize with mock user for testing
+  const [user] = useState<User | null>(mockUser);
+  const [loading] = useState(false);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined' && auth) {
-      const unsubscribe = onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          try {
-            const token = await getIdToken(user, true);
-            setAuthToken(token);
-            setUser(user);
-          } catch (error) {
-            console.error('Error getting token:', error);
-            setUser(null);
-            removeAuthToken();
-          }
-        } else {
-          setUser(null);
-          removeAuthToken();
-        }
-        setLoading(false);
-      });
-
-      return () => unsubscribe();
-    } else {
-      setLoading(false);
-    }
-  }, []);
-
-  const signUp = async (email: string, password: string) => {
-    try {
-      if (!auth) throw new Error('Auth is not initialized');
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const token = await getIdToken(userCredential.user, true);
-      setAuthToken(token);
-      router.push('/');
-    } catch (error) {
-      console.error('Signup error:', error);
-      throw error;
-    }
+  const login = async () => {
+    console.log('Mock login');
   };
 
-  const signIn = async (email: string, password: string) => {
-    try {
-      if (!auth) throw new Error('Auth is not initialized');
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const token = await getIdToken(userCredential.user, true);
-      setAuthToken(token);
-      router.push('/');
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
-    }
+  const signup = async () => {
+    console.log('Mock signup');
   };
 
   const logout = async () => {
-    try {
-      if (!auth) throw new Error('Auth is not initialized');
-      await signOut(auth);
-      removeAuthToken();
-      router.push('/auth/login');
-    } catch (error) {
-      console.error('Logout error:', error);
-      throw error;
-    }
+    console.log('Mock logout');
   };
 
-  const resetPassword = async (email: string) => {
-    try {
-      if (!auth) throw new Error('Auth is not initialized');
-      await sendPasswordResetEmail(auth, email);
-    } catch (error) {
-      console.error('Password reset error:', error);
-      throw error;
-    }
-  };
-
-  const value = {
-    user,
-    loading,
-    signUp,
-    signIn,
-    logout,
-    resetPassword,
+  const resetPassword = async () => {
+    console.log('Mock reset password');
   };
 
   return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
+    <AuthContext.Provider value={{ user, loading, login, signup, logout, resetPassword }}>
+      {children}
     </AuthContext.Provider>
   );
 }

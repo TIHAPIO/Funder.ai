@@ -1,78 +1,87 @@
 'use client';
 
-import Link from 'next/link';
-import { Button } from '../../../components/ui/button';
-import { useAuth } from '../../../context/AuthContext';
 import { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 export default function ResetPasswordPage() {
   const [email, setEmail] = useState('');
-  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const { resetPassword } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await resetPassword(email);
-      setSubmitted(true);
+      setSuccess(true);
+      setError('');
     } catch (error) {
-      console.error('Password reset failed:', error);
+      setError('Passwort zurücksetzen fehlgeschlagen. Bitte überprüfen Sie Ihre E-Mail-Adresse.');
+      setSuccess(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="max-w-md w-full space-y-8 p-8 bg-card rounded-lg shadow-lg">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">
-            Passwort zurücksetzen
-          </h2>
-          <p className="mt-2 text-center text-sm text-muted-foreground">
-            Geben Sie Ihre E-Mail-Adresse ein, um Ihr Passwort zurückzusetzen.
+    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+      <div className="w-full max-w-md space-y-8">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold">Passwort zurücksetzen</h2>
+          <p className="mt-2 text-muted-foreground">
+            Geben Sie Ihre E-Mail-Adresse ein, um Ihr Passwort zurückzusetzen
           </p>
         </div>
-        {!submitted ? (
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+
+        {success ? (
+          <div className="bg-green-50 dark:bg-green-900/20 text-green-900 dark:text-green-100 p-4 rounded-md">
+            <p>
+              Eine E-Mail zum Zurücksetzen des Passworts wurde an {email} gesendet.
+              Bitte überprüfen Sie Ihren Posteingang und folgen Sie den Anweisungen.
+            </p>
+            <div className="mt-4">
+              <a
+                href="/auth/login"
+                className="text-primary hover:underline"
+              >
+                Zurück zur Anmeldung
+              </a>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+            {error && (
+              <div className="bg-destructive/10 text-destructive p-3 rounded-md text-sm">
+                {error}
+              </div>
+            )}
+
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-foreground">
-                E-Mail-Adresse
+              <label htmlFor="email" className="block text-sm font-medium mb-1">
+                E-Mail
               </label>
-              <input
+              <Input
                 id="email"
-                name="email"
                 type="email"
-                autoComplete="email"
-                required
-                className="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-border bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-ring focus:border-ring"
-                placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="name@beispiel.de"
               />
             </div>
 
             <div>
               <Button type="submit" className="w-full">
-                Zurücksetzen
+                Passwort zurücksetzen
               </Button>
             </div>
 
-            <div className="text-center">
-              <Link href="/auth/login" className="text-primary hover:text-primary/80 text-sm">
-                Zurück zum Login
-              </Link>
+            <div className="text-center text-sm">
+              <a href="/auth/login" className="text-primary hover:underline">
+                Zurück zur Anmeldung
+              </a>
             </div>
           </form>
-        ) : (
-          <div className="mt-8 space-y-6">
-            <p className="text-center text-foreground">
-              Eine E-Mail mit Anweisungen zum Zurücksetzen Ihres Passworts wurde an {email} gesendet.
-            </p>
-            <div className="text-center">
-              <Link href="/auth/login" className="text-primary hover:text-primary/80 text-sm">
-                Zurück zum Login
-              </Link>
-            </div>
-          </div>
         )}
       </div>
     </div>

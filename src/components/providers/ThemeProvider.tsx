@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext } from 'react'
-import { themeConfig } from '@/styles/theme'
+import { themeConfig } from '../../styles/theme'
 
 type ThemeContextType = {
   getCardClass: (options?: { hover?: boolean }) => string

@@ -1,89 +1,91 @@
 'use client';
 
-import Link from 'next/link';
-import { Button } from '../../../components/ui/button';
-import { useAuth } from '../../../context/AuthContext';
 import { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
-export default function SignUpPage() {
+export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const { signUp } = useAuth();
+  const [displayName, setDisplayName] = useState('');
+  const [error, setError] = useState('');
+  const { signup } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      console.error('Passwords do not match');
-      return;
-    }
     try {
-      await signUp(email, password);
+      await signup(email, password, displayName);
       router.push('/');
     } catch (error) {
-      console.error('Signup failed:', error);
+      setError('Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.');
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="max-w-md w-full space-y-8 p-8 bg-card rounded-lg shadow-lg">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">
-            Konto erstellen
-          </h2>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+      <div className="w-full max-w-md space-y-8">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold">Registrieren</h2>
+          <p className="mt-2 text-muted-foreground">
+            Erstellen Sie ein neues Konto
+          </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
+
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+          {error && (
+            <div className="bg-destructive/10 text-destructive p-3 rounded-md text-sm">
+              {error}
+            </div>
+          )}
+
+          <div className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-foreground">
-                E-Mail-Adresse
+              <label htmlFor="displayName" className="block text-sm font-medium mb-1">
+                Name
               </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
+              <Input
+                id="displayName"
+                type="text"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
                 required
-                className="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-border bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-ring focus:border-ring"
-                placeholder="name@example.com"
+                placeholder="Max Mustermann"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium mb-1">
+                E-Mail
+              </label>
+              <Input
+                id="email"
+                type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="name@beispiel.de"
               />
             </div>
-            <div className="mt-4">
-              <label htmlFor="password" className="block text-sm font-medium text-foreground">
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium mb-1">
                 Passwort
               </label>
-              <input
+              <Input
                 id="password"
-                name="password"
                 type="password"
-                autoComplete="new-password"
-                required
-                className="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-border bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-ring focus:border-ring"
-                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            <div className="mt-4">
-              <label htmlFor="confirm-password" className="block text-sm font-medium text-foreground">
-                Passwort bestätigen
-              </label>
-              <input
-                id="confirm-password"
-                name="confirm-password"
-                type="password"
-                autoComplete="new-password"
                 required
-                className="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-border bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-ring focus:border-ring"
                 placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                minLength={6}
               />
+              <p className="mt-1 text-xs text-muted-foreground">
+                Mindestens 6 Zeichen
+              </p>
             </div>
           </div>
 
@@ -93,11 +95,11 @@ export default function SignUpPage() {
             </Button>
           </div>
 
-          <div className="text-center mt-4">
-            <span className="text-sm text-muted-foreground">Bereits registriert?</span>{' '}
-            <Link href="/auth/login" className="text-primary hover:text-primary/80 text-sm">
+          <div className="text-center text-sm">
+            Bereits ein Konto?{' '}
+            <a href="/auth/login" className="text-primary hover:underline">
               Anmelden
-            </Link>
+            </a>
           </div>
         </form>
       </div>

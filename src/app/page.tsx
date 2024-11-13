@@ -1,94 +1,118 @@
 'use client';
 
-import { useAuth } from '@/context/AuthContext';
-import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
+import { AlertTriangle, CheckCircle, Clock } from 'lucide-react';
+import { MainLayout } from '../components/templates/main-layout';
 
-export default function HomePage() {
-  const { user } = useAuth();
-  const router = useRouter();
+export default function Home() {
+  // This would typically come from your backend/API
+  const criticalItems = [
+    { id: 1, title: 'Kampagne XYZ benötigt Überprüfung', priority: 'high' },
+    { id: 2, title: '3 neue Anfragen warten auf Antwort', priority: 'medium' },
+    { id: 3, title: 'Ressourcen-Update erforderlich', priority: 'low' },
+  ];
 
-  return (
-    <div className="max-w-7xl mx-auto">
-      <div className="bg-background dark:bg-background shadow rounded-lg p-6">
-        <h1 className="text-2xl font-bold text-foreground dark:text-foreground mb-4">
-          Willkommen bei fundr.ai
-        </h1>
-        
-        <div className="bg-accent dark:bg-accent border-l-4 border-blue-400 dark:border-blue-500 p-4 mb-6">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-blue-400 dark:text-blue-300" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-foreground dark:text-foreground">
-                Sie sind eingeloggt als <span className="font-medium">{user?.email}</span>
-              </p>
-            </div>
-          </div>
+  // This would be calculated based on tasks/deadlines
+  const hasOvertime = criticalItems.some(item => item.priority === 'high');
+
+  const content = (
+    <div className="flex flex-col p-8 max-w-6xl mx-auto">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-4xl font-bold">Willkommen bei fundr.ai</h1>
+        <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
+          hasOvertime 
+            ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' 
+            : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+        }`}>
+          {hasOvertime ? (
+            <>
+              <Clock className="w-5 h-5" />
+              <span>Heute sind Überstunden zu erledigen</span>
+            </>
+          ) : (
+            <>
+              <CheckCircle className="w-5 h-5" />
+              <span>Alle Arbeit erledigt - Sie können nach Hause gehen!</span>
+            </>
+          )}
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-muted dark:bg-muted p-6 rounded-lg">
-            <h3 className="text-lg font-medium text-foreground dark:text-foreground mb-2">Kampagnen</h3>
-            <p className="text-muted-foreground dark:text-muted-foreground mb-4">Verwalten Sie Ihre Fundraising-Kampagnen</p>
-            <Button
-              onClick={() => router.push('/campaigns')}
-              variant="outline"
-            >
-              Zu den Kampagnen
-            </Button>
+      <div className="space-y-6">
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Critical Items Section */}
+          <div className="bg-accent/50 p-6 rounded-lg">
+            <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+              <AlertTriangle className="w-6 h-6 text-yellow-500" />
+              Kritische Aufgaben
+            </h2>
+            {criticalItems.length > 0 ? (
+              <ul className="space-y-3">
+                {criticalItems.map(item => (
+                  <li 
+                    key={item.id} 
+                    className={`
+                      flex items-center gap-2 p-3 rounded-md
+                      ${item.priority === 'high' ? 'bg-red-100 dark:bg-red-900/30' : ''}
+                      ${item.priority === 'medium' ? 'bg-yellow-100 dark:bg-yellow-900/30' : ''}
+                      ${item.priority === 'low' ? 'bg-blue-100 dark:bg-blue-900/30' : ''}
+                    `}
+                  >
+                    <div className={`
+                      w-2 h-2 rounded-full
+                      ${item.priority === 'high' ? 'bg-red-500' : ''}
+                      ${item.priority === 'medium' ? 'bg-yellow-500' : ''}
+                      ${item.priority === 'low' ? 'bg-blue-500' : ''}
+                    `} />
+                    {item.title}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-muted-foreground">Keine kritischen Aufgaben vorhanden</p>
+            )}
           </div>
 
-          <div className="bg-muted dark:bg-muted p-6 rounded-lg">
-            <h3 className="text-lg font-medium text-foreground dark:text-foreground mb-2">Anfragen</h3>
-            <p className="text-muted-foreground dark:text-muted-foreground mb-4">Sehen Sie alle eingegangenen Anfragen</p>
-            <Button
-              onClick={() => router.push('/requests')}
-              variant="outline"
-            >
-              Zu den Anfragen
-            </Button>
+          {/* Quick Actions Section */}
+          <div className="bg-accent/50 p-6 rounded-lg">
+            <h2 className="text-2xl font-bold mb-4">Schnellzugriff</h2>
+            <div className="space-y-4">
+              <a
+                href="/campaigns"
+                className="block p-4 rounded-md bg-primary/10 hover:bg-primary/20 transition-colors"
+              >
+                <h3 className="font-semibold">Kampagnen verwalten</h3>
+                <p className="text-sm text-muted-foreground">
+                  Erstellen und bearbeiten Sie Ihre Fundraising-Kampagnen
+                </p>
+              </a>
+              <a
+                href="/requests"
+                className="block p-4 rounded-md bg-primary/10 hover:bg-primary/20 transition-colors"
+              >
+                <h3 className="font-semibold">Anfragen bearbeiten</h3>
+                <p className="text-sm text-muted-foreground">
+                  Beantworten Sie offene Anfragen und Nachrichten
+                </p>
+              </a>
+              <a
+                href="/resources"
+                className="block p-4 rounded-md bg-primary/10 hover:bg-primary/20 transition-colors"
+              >
+                <h3 className="font-semibold">Ressourcen aktualisieren</h3>
+                <p className="text-sm text-muted-foreground">
+                  Verwalten Sie Ihre verfügbaren Ressourcen
+                </p>
+              </a>
+            </div>
           </div>
-
-          <div className="bg-muted dark:bg-muted p-6 rounded-lg">
-            <h3 className="text-lg font-medium text-foreground dark:text-foreground mb-2">Ressourcen</h3>
-            <p className="text-muted-foreground dark:text-muted-foreground mb-4">Greifen Sie auf wichtige Ressourcen zu</p>
-            <Button
-              onClick={() => router.push('/resources')}
-              variant="outline"
-            >
-              Zu den Ressourcen
-            </Button>
-          </div>
-        </div>
-
-        <div className="bg-muted dark:bg-muted p-6 rounded-lg">
-          <h2 className="text-xl font-semibold text-foreground dark:text-foreground mb-4">Schnellstart</h2>
-          <ul className="space-y-3">
-            <li className="flex items-center text-muted-foreground dark:text-muted-foreground">
-              <svg className="h-5 w-5 text-green-500 dark:text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Erstellen Sie eine neue Kampagne
-            </li>
-            <li className="flex items-center text-muted-foreground dark:text-muted-foreground">
-              <svg className="h-5 w-5 text-green-500 dark:text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Verwalten Sie Ihre Kontakte
-            </li>
-            <li className="flex items-center text-muted-foreground dark:text-muted-foreground">
-              <svg className="h-5 w-5 text-green-500 dark:text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Überprüfen Sie die Statistiken
-            </li>
-          </ul>
         </div>
       </div>
     </div>
+  );
+
+  return (
+    <MainLayout>
+      {content}
+    </MainLayout>
   );
 }
