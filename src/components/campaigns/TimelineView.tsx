@@ -1,7 +1,7 @@
 import { useRef, useEffect, useMemo, useState } from 'react'
-import { Campaign, TimelineMarker, ZoomLevel } from '@/types/campaign'
+import { Campaign, TimelineMarker, ZoomLevel } from '../../types/campaign'
 import { Users, Car, Building, Box } from 'lucide-react'
-import { getResourceStatus, getTeamStatus, formatDate } from '@/utils/campaign-helpers'
+import { getResourceStatus, getTeamStatus, formatDate, getTimelineMarkers } from '../../utils/campaign-helpers'
 import { useRouter } from 'next/navigation'
 
 interface TimelineViewProps {
@@ -18,133 +18,150 @@ const statusColors = {
   planned: 'bg-blue-100/50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300'
 }
 
-export function TimelineView({ campaigns, markers, zoomLevel, currentDate }: TimelineViewProps) {
+export function TimelineView({ campaigns, markers: initialMarkers, zoomLevel, currentDate }: TimelineViewProps) {
   const router = useRouter()
   const timelineRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const [hoveredCampaign, setHoveredCampaign] = useState<number | null>(null)
+
+  const handleCampaignClick = (campaignId: number) => {
+    router.push(`/campaigns/${campaignId}`)
+  }
+
+  // Generate markers for all months when in month view
+  const allMarkers = useMemo(() => {
+    if (zoomLevel === 'year') {
+      return initialMarkers
+    }
+
+    // Generate markers for all months in the year
+    const yearMarkers: TimelineMarker[] = []
+    for (let month = 0; month < 12; month++) {
+      const monthDate = new Date(currentDate.getFullYear(), month, 1)
+      const monthMarkers = getTimelineMarkers(monthDate, 'month')
+      yearMarkers.push(...monthMarkers)
+    }
+    return yearMarkers
+  }, [zoomLevel, currentDate, initialMarkers])
 
   // Sync horizontal scroll between timeline and header
   useEffect(() => {
-    const timeline = timelineRef.current
-    const header = headerRef.current
+    const container = containerRef.current
+    if (!container) return
 
-    if (!timeline || !header) return
-
-    const handleScroll = () => {
-      header.scrollLeft = timeline.scrollLeft
+    const handleScroll = (e: Event) => {
+      const scrollLeft = (e.target as HTMLElement).scrollLeft
+      if (headerRef.current) {
+        headerRef.current.style.transform = `translateX(-${scrollLeft}px)`
+      }
     }
 
-    timeline.addEventListener('scroll', handleScroll)
-    return () => timeline.removeEventListener('scroll', handleScroll)
+    container.addEventListener('scroll', handleScroll)
+    return () => container.removeEventListener('scroll', handleScroll)
   }, [])
+
+  // Scroll to current month when in month view
+  useEffect(() => {
+    if (zoomLevel === 'month' && containerRef.current) {
+      const monthWidth = 1200 // Width of each month in pixels
+      const scrollPosition = currentDate.getMonth() * monthWidth
+      containerRef.current.scrollLeft = scrollPosition
+    }
+  }, [zoomLevel, currentDate])
 
   const getCampaignPosition = (campaign: Campaign) => {
     const startDate = new Date(campaign.startDate)
     const endDate = new Date(campaign.endDate)
-    const year = currentDate.getFullYear()
-    const yearStart = new Date(year, 0, 1)
-    const yearEnd = new Date(year, 11, 31)
     
     if (zoomLevel === 'year') {
-      const totalDays = 365
-      const daysFromStart = Math.max(0, (startDate.getTime() - yearStart.getTime()) / (1000 * 60 * 60 * 24))
+      const yearStart = new Date(currentDate.getFullYear(), 0, 1)
+      const yearEnd = new Date(currentDate.getFullYear(), 11, 31)
+      const daysInYear = 365 // Simplified, not accounting for leap years
+      
+      const daysFromYearStart = Math.max(0, (startDate.getTime() - yearStart.getTime()) / (1000 * 60 * 60 * 24))
       const campaignDays = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
       
       return {
-        left: `${(daysFromStart / totalDays) * 100}%`,
-        width: `${(campaignDays / totalDays) * 100}%`,
+        left: `${(daysFromYearStart / daysInYear) * 100}%`,
+        width: `${(campaignDays / daysInYear) * 100}%`,
         isVisible: startDate <= yearEnd && endDate >= yearStart
       }
     } else {
-      const daysInYear = 365
-      const startDayOfYear = (startDate.getTime() - yearStart.getTime()) / (1000 * 60 * 60 * 24)
+      const yearStart = new Date(currentDate.getFullYear(), 0, 1)
+      const totalDaysInYear = 365 // Simplified
+      const daysFromYearStart = Math.max(0, (startDate.getTime() - yearStart.getTime()) / (1000 * 60 * 60 * 24))
       const campaignDays = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
       
       return {
-        left: `${(startDayOfYear / daysInYear) * 1200}%`,
-        width: `${(campaignDays / daysInYear) * 1200}%`,
-        isVisible: startDate <= yearEnd && endDate >= yearStart
+        left: `${(daysFromYearStart / totalDaysInYear) * 1200 * 12}px`, // 1200px per month
+        width: `${(campaignDays / totalDaysInYear) * 1200 * 12}px`,
+        isVisible: startDate.getFullYear() === currentDate.getFullYear()
       }
     }
   }
 
   const campaignRows = useMemo(() => {
     const rows: Campaign[][] = []
-    const sortedCampaigns = [...campaigns].sort((a, b) => 
-      new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
-    )
+    const sortedCampaigns = [...campaigns]
+      .filter(campaign => {
+        const position = getCampaignPosition(campaign)
+        return position.isVisible
+      })
+      .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
 
     sortedCampaigns.forEach(campaign => {
-      const campaignStart = new Date(campaign.startDate)
-      const campaignEnd = new Date(campaign.endDate)
-      const position = getCampaignPosition(campaign)
-      if (!position.isVisible) return
-
       let rowIndex = 0
-      let foundRow = false
+      let placed = false
 
-      while (!foundRow && rowIndex < rows.length) {
-        const row = rows[rowIndex]
-        let canFit = true
+      while (!placed) {
+        if (!rows[rowIndex]) {
+          rows[rowIndex] = [campaign]
+          placed = true
+        } else {
+          const canFitInRow = rows[rowIndex].every(existingCampaign => {
+            const existingStart = new Date(existingCampaign.startDate)
+            const existingEnd = new Date(existingCampaign.endDate)
+            const campaignStart = new Date(campaign.startDate)
+            const campaignEnd = new Date(campaign.endDate)
+            return campaignStart > existingEnd || campaignEnd < existingStart
+          })
 
-        for (const existingCampaign of row) {
-          const existingStart = new Date(existingCampaign.startDate)
-          const existingEnd = new Date(existingCampaign.endDate)
-
-          if (campaignStart <= existingEnd && campaignEnd >= existingStart) {
-            canFit = false
-            break
+          if (canFitInRow) {
+            rows[rowIndex].push(campaign)
+            placed = true
+          } else {
+            rowIndex++
           }
         }
-
-        if (canFit) {
-          foundRow = true
-          row.push(campaign)
-        }
-
-        rowIndex++
-      }
-
-      if (!foundRow) {
-        rows.push([campaign])
       }
     })
 
     return rows
   }, [campaigns, currentDate, zoomLevel])
 
-  const timelineWidth = zoomLevel === 'year' ? '1800px' : '4800px'
-
-  const handleCampaignClick = (campaignId: number) => {
-    router.push(`/campaigns/${campaignId}`)
-  }
+  const timelineWidth = zoomLevel === 'year' ? 'w-[2400px]' : 'w-[14400px]' // 1200px per month in month view
 
   return (
     <div className="h-screen bg-background">
       {/* Timeline Header */}
       <div className="sticky top-0 border-b pb-2 bg-background z-10 overflow-hidden">
-        <div 
-          ref={headerRef}
-          className="overflow-x-hidden no-scrollbar"
-          style={{ width: '100%' }}
-        >
+        <div className="text-center text-xl font-medium py-2">
+          {zoomLevel === 'year' 
+            ? currentDate.getFullYear().toString()
+            : new Intl.DateTimeFormat('de-DE', { month: 'long', year: 'numeric' }).format(currentDate)
+          }
+        </div>
+        <div ref={headerRef} className={`${timelineWidth}`}>
           <div className="grid" style={{ 
-            gridTemplateColumns: `repeat(${markers.length}, 1fr)`,
-            minWidth: timelineWidth
+            gridTemplateColumns: `repeat(${allMarkers.length}, 1fr)`
           }}>
-            {markers.map((marker, index) => (
+            {allMarkers.map((marker, index) => (
               <div key={index} className="text-center border-l border-border first:border-l-0">
-                {marker.isMonth ? (
-                  <div className="font-medium text-muted-foreground">{marker.label}</div>
-                ) : (
-                  <>
-                    {marker.isWeekStart && (
-                      <div className="text-xs text-muted-foreground mb-1">KW{marker.weekNumber}</div>
-                    )}
-                    <div className="text-sm text-muted-foreground">{marker.label}</div>
-                  </>
+                {marker.isWeekStart && (
+                  <div className="text-xs text-muted-foreground mb-1">KW{marker.weekNumber}</div>
                 )}
+                <div className="text-sm text-muted-foreground">{marker.label}</div>
               </div>
             ))}
           </div>
@@ -153,28 +170,26 @@ export function TimelineView({ campaigns, markers, zoomLevel, currentDate }: Tim
 
       {/* Campaigns Container */}
       <div 
-        ref={timelineRef}
-        className="overflow-x-auto overflow-y-auto"
+        ref={containerRef}
+        className="overflow-x-auto overflow-y-hidden"
         style={{ 
           height: 'calc(100vh - 180px)',
           scrollBehavior: 'smooth'
         }}
       >
-        <div className="relative px-4">
+        <div className={`relative px-4 ${timelineWidth}`}>
           {/* Grid Lines */}
           <div className="absolute inset-0 grid" style={{ 
-            gridTemplateColumns: `repeat(${markers.length}, 1fr)`,
-            minWidth: timelineWidth,
+            gridTemplateColumns: `repeat(${allMarkers.length}, 1fr)`,
             height: campaignRows.length * 70 + 'px'
           }}>
-            {markers.map((_, index) => (
+            {allMarkers.map((_, index) => (
               <div key={index} className="border-l border-border/30 first:border-l-0 h-full" />
             ))}
           </div>
 
           {/* Campaigns */}
           <div className="relative" style={{ 
-            minWidth: timelineWidth,
             minHeight: campaignRows.length * 70 + 'px'
           }}>
             {campaignRows.map((row, rowIndex) => (

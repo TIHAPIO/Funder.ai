@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
+import { useAuth } from '../../context/AuthContext'
+import { Button } from '../../components/ui/button'
 import {
   Calendar,
   List,
@@ -10,20 +11,51 @@ import {
   ZoomIn,
   ZoomOut
 } from 'lucide-react'
-import { ViewMode, ZoomLevel } from '@/types/campaign'
-import { getTimelineMarkers } from '@/utils/campaign-helpers'
-import { TimelineView } from '@/components/campaigns/TimelineView'
-import { ListView } from '@/components/campaigns/ListView'
-import { campaigns2024 } from '@/data/campaigns'
+import { ViewMode, ZoomLevel, Campaign } from '../../types/campaign'
+import { getTimelineMarkers } from '../../utils/campaign-helpers'
+import { TimelineView } from '../../components/campaigns/TimelineView'
+import { ListView } from '../../components/campaigns/ListView'
+import { campaignService } from '../../lib/services'
+import { useRouter } from 'next/navigation'
 
 export default function CampaignsPage() {
+  const { user, loading: authLoading } = useAuth()
+  const router = useRouter()
   const [viewMode, setViewMode] = useState<ViewMode>('timeline')
   const [zoomLevel, setZoomLevel] = useState<ZoomLevel>('year')
   const [currentDate, setCurrentDate] = useState(new Date('2024-01-01'))
+  const [campaigns, setCampaigns] = useState<Campaign[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    console.log('Campaigns loaded:', campaigns2024)
-  }, [])
+    // If auth is still loading, wait
+    if (authLoading) return
+
+    // If no user after auth load completes, redirect to login
+    if (!user) {
+      router.push('/auth/login')
+      return
+    }
+
+    loadCampaigns()
+  }, [user, authLoading, currentDate, router])
+
+  const loadCampaigns = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const yearStart = new Date(currentDate.getFullYear(), 0, 1)
+      const yearEnd = new Date(currentDate.getFullYear(), 11, 31)
+      const result = await campaignService.getCampaignsByDateRange(yearStart, yearEnd)
+      setCampaigns(result.items)
+    } catch (error) {
+      console.error('Error loading campaigns:', error)
+      setError('Fehler beim Laden der Kampagnen. Bitte versuchen Sie es später erneut.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const navigateTimeline = (direction: 'prev' | 'next') => {
     const newDate = new Date(currentDate)
@@ -36,6 +68,24 @@ export default function CampaignsPage() {
   }
 
   const markers = getTimelineMarkers(currentDate, zoomLevel)
+
+  // Show loading state while auth is being checked
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-lg text-muted-foreground">Initialisiere...</div>
+      </div>
+    )
+  }
+
+  // Show error state if there's an error
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-lg text-destructive">{error}</div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -98,15 +148,19 @@ export default function CampaignsPage() {
 
       {/* View Components */}
       <div className="flex-1">
-        {viewMode === 'timeline' ? (
+        {loading ? (
+          <div className="flex items-center justify-center h-[calc(100vh-200px)]">
+            <div className="text-lg text-muted-foreground">Lade Kampagnen...</div>
+          </div>
+        ) : viewMode === 'timeline' ? (
           <TimelineView
-            campaigns={campaigns2024}
+            campaigns={campaigns}
             markers={markers}
             zoomLevel={zoomLevel}
             currentDate={currentDate}
           />
         ) : (
-          <ListView campaigns={campaigns2024} />
+          <ListView campaigns={campaigns} />
         )}
       </div>
     </div>

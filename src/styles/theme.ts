@@ -26,6 +26,7 @@ export const themeConfig = {
     base: "bg-secondary dark:bg-accent p-3 rounded",
   },
   border: {
-    base: "border border-border rounded",
+    base: "border border-border dark:border-gray-700 rounded ring-1 ring-gray-200 dark:ring-gray-600",
+    hover: "hover:border-gray-400 dark:hover:border-gray-500",
   },
 }

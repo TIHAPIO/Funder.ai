@@ -1,172 +1,254 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
-import { useSheets } from "@/hooks/useSheets";
-import { sheetConfigs, Category } from "./types";
 import { 
   Plus, 
   ShirtIcon, 
   Package, 
-  AlertTriangle, 
   Car, 
   Building, 
   Users, 
   Home,
   ExternalLink,
   FolderHeart,
-  X,
   Loader2
 } from 'lucide-react';
 import { useTheme } from "@/components/providers/ThemeProvider";
+import { 
+  employeeService, 
+  equipmentService, 
+  vehicleService, 
+  accommodationService, 
+  redCrossOfficeService 
+} from '@/lib/services/resources';
+import type { 
+  Employee, 
+  Equipment, 
+  Vehicle, 
+  Accommodation, 
+  RedCrossOffice 
+} from '@/types/resources';
+import { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 
-const generateSampleData = (category: string) => {
-  const config = sheetConfigs[category as keyof typeof sheetConfigs];
-  const headers = [...config.headers]; // Convert readonly array to mutable array
-  const sampleData: (string | number)[][] = [];
+type Resource = Employee | Equipment | Vehicle | Accommodation | RedCrossOffice;
 
-  for (let i = 1; i <= 10; i++) {
-    switch (category) {
-      case 'employees':
-        sampleData.push([
-          `Mitarbeiter ${i}`,
-          ['Aktiv', 'In Schulung', 'Urlaub'][i % 3],
-          `Kampagne ${Math.floor(i/3) + 1}`,
-          ['S', 'M', 'L', 'XL'][i % 4],
-          ['S', 'M', 'L', 'XL'][i % 4],
-          ['S', 'M', 'L', 'XL'][i % 4],
-          ['Tablet', 'Laptop', 'Smartphone'][i % 3],
-        ]);
-        break;
-      case 'equipment':
-        sampleData.push([
-          `Gerät ${i}`,
-          ['Tablet', 'Laptop', 'Smartphone', 'Drucker'][i % 4],
-          ['Verfügbar', 'In Benutzung', 'Wartung'][i % 3],
-          `Mitarbeiter ${i}`,
-          `SN-${Math.floor(Math.random() * 10000)}`,
-        ]);
-        break;
-      case 'clothing':
-        sampleData.push([
-          ['T-Shirt', 'Jacke', 'Hose', 'Weste', 'Mütze'][i % 5],
-          Math.floor(Math.random() * 20),
-          Math.floor(Math.random() * 20),
-          Math.floor(Math.random() * 20),
-          Math.floor(Math.random() * 20),
-        ]);
-        break;
-      case 'vehicles':
-        sampleData.push([
-          `Fahrzeug ${i}`,
-          ['Verfügbar', 'Im Einsatz', 'Wartung'][i % 3],
-          `Kampagne ${Math.floor(i/3) + 1}`,
-          `Notiz für Fahrzeug ${i}`,
-          ['Intern', 'Extern', 'Gemietet'][i % 3],
-        ]);
-        break;
-      case 'districts':
-        sampleData.push([
-          `Kreisverband ${i}`,
-          ['Aktiv', 'In Planung', 'Pausiert'][i % 3],
-          Math.floor(Math.random() * 100) + 50,
-          `kontakt${i}@kreis.de`,
-        ]);
-        break;
-      case 'accommodations':
-        sampleData.push([
-          `Unterkunft ${i}`,
-          `Stadt ${i}`,
-          Math.floor(Math.random() * 50) + 20,
-          `Kampagne ${Math.floor(i/3) + 1}`,
-          `unterkunft${i}@kontakt.de`,
-        ]);
-        break;
-    }
-  }
+interface CategoryConfig {
+  title: string;
+  icon: any;
+  key: 'employees' | 'equipment' | 'clothing' | 'vehicles' | 'districts' | 'accommodations';
+  resourceType: 'internal' | 'external';
+  service: any;
+  headers: string[];
+}
 
-  return [headers, ...sampleData];
-};
-
-const categories: Category[] = [
+const categories: CategoryConfig[] = [
   {
     title: "Mitarbeiter",
     icon: Users,
     key: 'employees',
-    resourceType: 'internal'
+    resourceType: 'internal',
+    service: employeeService,
+    headers: ['Name', 'Status', 'Rolle', 'Kampagne', 'Ausrüstung', 'Kontakt']
   },
   {
     title: "Ausrüstung",
     icon: Package,
     key: 'equipment',
-    resourceType: 'internal'
+    resourceType: 'internal',
+    service: equipmentService,
+    headers: ['Name', 'Typ', 'Status', 'Zugewiesen an', 'Seriennummer', 'Verfügbar']
   },
   {
     title: "Kleidung",
     icon: ShirtIcon,
     key: 'clothing',
-    resourceType: 'internal'
+    resourceType: 'internal',
+    service: equipmentService,
+    headers: ['Artikel', 'Größe', 'Status', 'Verfügbar', 'Gesamt']
   },
   {
     title: "Fahrzeuge",
     icon: Car,
     key: 'vehicles',
-    resourceType: 'external'
+    resourceType: 'external',
+    service: vehicleService,
+    headers: ['Name', 'Status', 'Typ', 'Kennzeichen', 'Kampagne', 'Wartung']
   },
   {
     title: "Kreisverbände",
     icon: Building,
     key: 'districts',
-    resourceType: 'external'
+    resourceType: 'external',
+    service: redCrossOfficeService,
+    headers: ['Name', 'Status', 'Stadt', 'Kapazität', 'Kontakt']
   },
   {
     title: "Unterkünfte",
     icon: Home,
     key: 'accommodations',
-    resourceType: 'external'
+    resourceType: 'external',
+    service: accommodationService,
+    headers: ['Name', 'Typ', 'Stadt', 'Verfügbar', 'Kampagne', 'Kontakt']
   }
 ];
+
+const formatResourceData = (data: Resource[]): (string | number)[][] => {
+  return data.map(item => {
+    switch(true) {
+      case 'role' in item: // Employee
+        const employee = item as Employee;
+        return [
+          employee.name,
+          employee.status,
+          employee.role,
+          employee.campaignId?.toString() || '-',
+          `${employee.equipment?.tablet || '-'}, ${employee.equipment?.clothing?.shirtSize || '-'}`,
+          employee.contact?.email || '-'
+        ];
+      case 'serialNumber' in item: // Equipment
+        const equipment = item as Equipment;
+        if (equipment.type === 'clothing') {
+          return [
+            equipment.name,
+            equipment.details?.size || '-',
+            equipment.status,
+            equipment.quantity?.available.toString() || '0',
+            equipment.quantity?.total.toString() || '0'
+          ];
+        }
+        return [
+          equipment.name,
+          equipment.type,
+          equipment.status,
+          equipment.assignedTo?.toString() || '-',
+          equipment.serialNumber || '-',
+          `${equipment.quantity?.available}/${equipment.quantity?.total}`
+        ];
+      case 'licensePlate' in item: // Vehicle
+        const vehicle = item as Vehicle;
+        return [
+          vehicle.name,
+          vehicle.status,
+          vehicle.type,
+          vehicle.licensePlate,
+          vehicle.campaignId?.toString() || '-',
+          vehicle.maintenance?.nextService || '-'
+        ];
+      case 'teams' in item: // RedCrossOffice
+        const office = item as RedCrossOffice;
+        return [
+          office.name,
+          office.status,
+          office.location.city,
+          `${office.capacity.teams}/${office.capacity.campaigns}`,
+          office.contact.email
+        ];
+      case 'booking' in item: // Accommodation
+        const accommodation = item as Accommodation;
+        return [
+          accommodation.name,
+          accommodation.type,
+          accommodation.location.city,
+          `${accommodation.capacity.available}/${accommodation.capacity.total}`,
+          accommodation.campaignId?.toString() || '-',
+          accommodation.contact.email
+        ];
+      default:
+        return [];
+    }
+  });
+};
 
 export default function ResourcesPage() {
   const { getCardClass, getContainerClass } = useTheme();
   const [resourceType, setResourceType] = useState<'internal' | 'external'>('internal');
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  
-  const { data, loading, error, updateData, refreshData } = useSheets(
-    selectedCategory?.key || ''
-  );
+  const [selectedCategory, setSelectedCategory] = useState<CategoryConfig | null>(null);
+  const [data, setData] = useState<Resource[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
+
+  useEffect(() => {
+    if (selectedCategory) {
+      // Reset pagination when category changes
+      setCurrentPage(1);
+      setHasMore(false);
+      setLastDoc(null);
+      setData([]);
+      fetchData();
+    }
+  }, [selectedCategory]);
+
+  const fetchData = async () => {
+    if (!selectedCategory) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      let result;
+      switch (selectedCategory.key) {
+        case 'employees':
+          result = await employeeService.getAllEmployees(currentPage);
+          break;
+        case 'equipment':
+          result = await equipmentService.getAllEquipment(currentPage);
+          break;
+        case 'clothing':
+          result = await equipmentService.getEquipmentByType('clothing', currentPage);
+          break;
+        case 'vehicles':
+          result = await vehicleService.getAllVehicles(currentPage);
+          break;
+        case 'districts':
+          result = await redCrossOfficeService.getAllOffices(currentPage);
+          break;
+        case 'accommodations':
+          result = await accommodationService.getAllAccommodations(currentPage);
+          break;
+        default:
+          result = { items: [], lastDoc: null, hasMore: false };
+      }
+      
+      setData(currentPage === 1 ? result.items : [...data, ...result.items]);
+      setLastDoc(result.lastDoc);
+      setHasMore(result.hasMore);
+    } catch (err) {
+      console.error('Error fetching data:', err);
+      setError('Fehler beim Laden der Daten');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadMore = async () => {
+    if (lastDoc) {
+      setCurrentPage(currentPage + 1);
+      await fetchData();
+    }
+  };
+
+  const handleSaveData = async (updatedData: (string | number)[][]) => {
+    if (!selectedCategory) return;
+    
+    try {
+      // TODO: Implement save functionality with Firebase
+      // This will require mapping the table data back to the proper resource type
+      // and using the appropriate service to update
+      await fetchData();
+    } catch (error) {
+      console.error('Error saving data:', error);
+      setError('Fehler beim Speichern der Daten');
+    }
+  };
 
   const filteredCategories = categories.filter(category => 
     category.resourceType === resourceType
   );
-
-  const handleSaveData = async (data: any[][]) => {
-    if (!selectedCategory) return;
-    
-    try {
-      await updateData(data);
-      await refreshData();
-    } catch (error) {
-      console.error('Error saving data:', error);
-    }
-  };
-
-  const handleCategorySelect = (category: Category) => {
-    setSelectedCategory(category);
-  };
-
-  const handleAddSampleData = async () => {
-    if (!selectedCategory) return;
-    
-    const sampleData = generateSampleData(selectedCategory.key);
-    try {
-      await updateData(sampleData);
-      await refreshData();
-    } catch (error) {
-      console.error('Error adding sample data:', error);
-    }
-  };
 
   return (
     <div className={getContainerClass('base')}>
@@ -190,17 +272,10 @@ export default function ResourcesPage() {
             </Button>
           </div>
         </div>
-        {selectedCategory ? (
-          <Button onClick={handleAddSampleData}>
-            <Plus className="mr-2 h-4 w-4" />
-            Beispieldaten hinzufügen
-          </Button>
-        ) : (
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Ressource hinzufügen
-          </Button>
-        )}
+        <Button>
+          <Plus className="mr-2 h-4 w-4" />
+          Ressource hinzufügen
+        </Button>
       </div>
 
       {error && (
@@ -219,7 +294,7 @@ export default function ResourcesPage() {
               className={`${getCardClass()} cursor-pointer transition-transform hover:scale-105 ${
                 selectedCategory?.key === category.key ? 'ring-2 ring-blue-500' : ''
               }`}
-              onClick={() => handleCategorySelect(category)}
+              onClick={() => setSelectedCategory(category)}
             >
               <div className="flex items-center">
                 <category.icon className="h-5 w-5 text-blue-500 dark:text-blue-400 mr-2" />
@@ -231,7 +306,7 @@ export default function ResourcesPage() {
 
         {/* Main content area */}
         <div className="flex-1">
-          {loading ? (
+          {loading && currentPage === 1 ? (
             <div className="flex items-center justify-center h-64">
               <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
             </div>
@@ -245,11 +320,25 @@ export default function ResourcesPage() {
               </div>
               
               <DataTable
-                headers={sheetConfigs[selectedCategory.key].headers}
-                data={data}
+                headers={selectedCategory.headers}
+                data={formatResourceData(data)}
                 editable={true}
                 onSave={handleSaveData}
               />
+
+              {hasMore && (
+                <div className="mt-4 flex justify-center">
+                  <Button 
+                    onClick={loadMore}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : null}
+                    Mehr laden
+                  </Button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="flex items-center justify-center h-64 text-gray-500">

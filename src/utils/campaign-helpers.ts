@@ -1,4 +1,4 @@
-import { Campaign } from '@/types/campaign'
+import { Campaign } from '../types/campaign'
 
 export function formatDate(date: string): string {
   return new Date(date).toLocaleDateString('de-DE', {
@@ -47,33 +47,56 @@ export function getWeekNumber(date: Date): number {
 
 export function getTimelineMarkers(currentDate: Date, zoomLevel: 'year' | 'month') {
   const year = currentDate.getFullYear()
+  const month = currentDate.getMonth()
   
   if (zoomLevel === 'year') {
-    return Array.from({ length: 12 }, (_, month) => ({
-      label: new Date(year, month, 1).toLocaleDateString('de-DE', { month: 'short' }),
-      isMonth: true,
-      date: new Date(year, month, 1)
-    }))
-  } else {
-    const allMarkers = []
-    
-    for (let month = 0; month < 12; month++) {
-      const daysInMonth = new Date(year, month + 1, 0).getDate()
+    const markers = []
+    for (let m = 0; m < 12; m++) {
+      const monthStart = new Date(year, m, 1)
+      const monthEnd = new Date(year, m + 1, 0)
+      const firstMonday = new Date(year, m, 1 + ((8 - monthStart.getDay()) % 7))
       
-      for (let day = 1; day <= daysInMonth; day++) {
-        const date = new Date(year, month, day)
-        const isWeekStart = date.getDay() === 1
-        
-        allMarkers.push({
-          label: day.toString(),
+      markers.push({
+        label: monthStart.toLocaleDateString('de-DE', { month: 'short' }),
+        isMonth: true,
+        isWeekStart: true,
+        weekNumber: getWeekNumber(firstMonday),
+        date: monthStart
+      })
+
+      // Add week markers for the rest of the month
+      let currentDate = new Date(firstMonday)
+      currentDate.setDate(currentDate.getDate() + 7)
+      
+      while (currentDate <= monthEnd) {
+        markers.push({
+          label: '',
           isMonth: false,
-          isWeekStart,
-          weekNumber: isWeekStart ? getWeekNumber(date) : undefined,
-          date
+          isWeekStart: true,
+          weekNumber: getWeekNumber(currentDate),
+          date: new Date(currentDate)
         })
+        currentDate.setDate(currentDate.getDate() + 7)
       }
     }
+    return markers
+  } else {
+    const markers = []
+    const daysInMonth = new Date(year, month + 1, 0).getDate()
     
-    return allMarkers
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day)
+      const isWeekStart = date.getDay() === 1
+      
+      markers.push({
+        label: day.toString(),
+        isMonth: false,
+        isWeekStart,
+        weekNumber: isWeekStart ? getWeekNumber(date) : undefined,
+        date
+      })
+    }
+    
+    return markers
   }
 }
