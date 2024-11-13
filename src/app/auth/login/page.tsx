@@ -1,100 +1,81 @@
 'use client';
 
-import { useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { Button } from '../../../components/ui/button';
+import { useAuth } from '../../../context/AuthContext';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
-
     try {
       await signIn(email, password);
-      router.push('/'); // Redirect to dashboard after login
-    } catch (err) {
-      setError('Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Eingaben.');
-    } finally {
-      setLoading(false);
+      router.push('/');
+    } catch (error) {
+      console.error('Login failed:', error);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-lg">
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="max-w-md w-full space-y-8 p-8 bg-card rounded-lg shadow-lg">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">
             Anmelden
           </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-              {error}
-            </div>
-          )}
-          <div className="space-y-4">
+          <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="block text-sm font-medium text-foreground">
                 E-Mail-Adresse
               </label>
-              <Input
+              <input
                 id="email"
+                name="email"
                 type="email"
+                autoComplete="email"
                 required
+                className="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-border bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-ring focus:border-ring"
+                placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@beispiel.de"
-                className="mt-1"
               />
             </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <div className="mt-4">
+              <label htmlFor="password" className="block text-sm font-medium text-foreground">
                 Passwort
               </label>
-              <Input
+              <input
                 id="password"
+                name="password"
                 type="password"
+                autoComplete="current-password"
                 required
+                className="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-border bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-ring focus:border-ring"
+                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="mt-1"
               />
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="text-sm">
-              <Link href="/auth/reset-password" className="text-blue-600 hover:text-blue-500">
-                Passwort vergessen?
-              </Link>
-            </div>
+          <div>
+            <Button type="submit" className="w-full">
+              Anmelden
+            </Button>
           </div>
 
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full"
-          >
-            {loading ? 'Wird angemeldet...' : 'Anmelden'}
-          </Button>
-
           <div className="text-center mt-4">
-            <span className="text-sm text-gray-600">Noch kein Konto?</span>{' '}
-            <Link href="/auth/signup" className="text-blue-600 hover:text-blue-500 text-sm">
-              Jetzt registrieren
+            <span className="text-sm text-muted-foreground">Noch kein Konto?</span>{' '}
+            <Link href="/auth/signup" className="text-primary hover:text-primary/80 text-sm">
+              Registrieren
             </Link>
           </div>
         </form>

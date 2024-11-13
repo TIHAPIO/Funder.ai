@@ -1,85 +1,79 @@
 'use client';
 
-import { useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { Button } from '../../../components/ui/button';
+import { useAuth } from '../../../context/AuthContext';
+import { useState } from 'react';
 
 export default function ResetPasswordPage() {
   const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const { resetPassword } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setMessage('');
-    setLoading(true);
-
     try {
       await resetPassword(email);
-      setMessage('Überprüfen Sie Ihre E-Mail für weitere Anweisungen.');
-    } catch (err) {
-      setError('Fehler beim Zurücksetzen des Passworts. Bitte versuchen Sie es erneut.');
-    } finally {
-      setLoading(false);
+      setSubmitted(true);
+    } catch (error) {
+      console.error('Password reset failed:', error);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-lg">
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="max-w-md w-full space-y-8 p-8 bg-card rounded-lg shadow-lg">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">
             Passwort zurücksetzen
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-muted-foreground">
             Geben Sie Ihre E-Mail-Adresse ein, um Ihr Passwort zurückzusetzen.
           </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-              {error}
+        {!submitted ? (
+          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-foreground">
+                E-Mail-Adresse
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                className="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-border bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-ring focus:border-ring"
+                placeholder="name@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
-          )}
-          {message && (
-            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
-              {message}
+
+            <div>
+              <Button type="submit" className="w-full">
+                Zurücksetzen
+              </Button>
             </div>
-          )}
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              E-Mail-Adresse
-            </label>
-            <Input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@beispiel.de"
-              className="mt-1"
-            />
-          </div>
 
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full"
-          >
-            {loading ? 'Wird gesendet...' : 'Link zum Zurücksetzen senden'}
-          </Button>
-
-          <div className="text-center mt-4">
-            <Link href="/auth/login" className="text-blue-600 hover:text-blue-500 text-sm">
-              Zurück zur Anmeldung
-            </Link>
+            <div className="text-center">
+              <Link href="/auth/login" className="text-primary hover:text-primary/80 text-sm">
+                Zurück zum Login
+              </Link>
+            </div>
+          </form>
+        ) : (
+          <div className="mt-8 space-y-6">
+            <p className="text-center text-foreground">
+              Eine E-Mail mit Anweisungen zum Zurücksetzen Ihres Passworts wurde an {email} gesendet.
+            </p>
+            <div className="text-center">
+              <Link href="/auth/login" className="text-primary hover:text-primary/80 text-sm">
+                Zurück zum Login
+              </Link>
+            </div>
           </div>
-        </form>
+        )}
       </div>
     </div>
   );

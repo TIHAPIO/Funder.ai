@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "../../components/ui/button"
 import { Plus, Phone, Mail, MapPin } from 'lucide-react'
 
 export default function RecruitersPage() {
@@ -13,11 +13,11 @@ export default function RecruitersPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow">
+      <div className="bg-card p-4 rounded-lg shadow">
         <div className="grid grid-cols-4 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Status</label>
-            <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            <label className="block text-sm font-medium text-foreground">Status</label>
+            <select className="mt-1 block w-full rounded-md border-border bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring">
               <option>Alle</option>
               <option>Aktiv</option>
               <option>Verfügbar</option>
@@ -25,8 +25,8 @@ export default function RecruitersPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Erfahrung</label>
-            <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            <label className="block text-sm font-medium text-foreground">Erfahrung</label>
+            <select className="mt-1 block w-full rounded-md border-border bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring">
               <option>Alle</option>
               <option>Junior</option>
               <option>Senior</option>
@@ -34,8 +34,8 @@ export default function RecruitersPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Kampagne</label>
-            <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            <label className="block text-sm font-medium text-foreground">Kampagne</label>
+            <select className="mt-1 block w-full rounded-md border-border bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring">
               <option>Alle</option>
               <option>München</option>
               <option>Hamburg</option>
@@ -43,8 +43,8 @@ export default function RecruitersPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Sortierung</label>
-            <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            <label className="block text-sm font-medium text-foreground">Sortierung</label>
+            <select className="mt-1 block w-full rounded-md border-border bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring">
               <option>Name</option>
               <option>Status</option>
               <option>Erfahrung</option>
@@ -93,21 +93,21 @@ export default function RecruitersPage() {
         ].map((recruiter) => (
           <div
             key={recruiter.id}
-            className="bg-white shadow rounded-lg hover:shadow-md transition-shadow"
+            className="bg-card shadow rounded-lg hover:shadow-md transition-shadow"
           >
             <div className="p-6">
               <div className="flex justify-between items-start">
                 <div>
-                  <h2 className="text-xl font-semibold">{recruiter.name}</h2>
-                  <div className="text-sm text-gray-500">{recruiter.experience}</div>
+                  <h2 className="text-xl font-semibold text-foreground">{recruiter.name}</h2>
+                  <div className="text-sm text-muted-foreground">{recruiter.experience}</div>
                 </div>
                 <span
                   className={`px-3 py-1 rounded-full text-sm font-medium ${
                     recruiter.status === "Aktiv"
-                      ? "bg-green-100 text-green-800"
+                      ? "bg-success/20 text-success"
                       : recruiter.status === "Verfügbar"
-                      ? "bg-blue-100 text-blue-800"
-                      : "bg-gray-100 text-gray-800"
+                      ? "bg-info/20 text-info"
+                      : "bg-muted text-muted-foreground"
                   }`}
                 >
                   {recruiter.status}
@@ -116,28 +116,28 @@ export default function RecruitersPage() {
 
               <div className="mt-4 space-y-2">
                 <div className="flex items-center text-sm">
-                  <MapPin className="h-4 w-4 text-gray-400 mr-2" />
-                  {recruiter.location}
+                  <MapPin className="h-4 w-4 text-muted-foreground mr-2" />
+                  <span className="text-foreground">{recruiter.location}</span>
                 </div>
                 <div className="flex items-center text-sm">
-                  <Mail className="h-4 w-4 text-gray-400 mr-2" />
-                  {recruiter.email}
+                  <Mail className="h-4 w-4 text-muted-foreground mr-2" />
+                  <span className="text-foreground">{recruiter.email}</span>
                 </div>
                 <div className="flex items-center text-sm">
-                  <Phone className="h-4 w-4 text-gray-400 mr-2" />
-                  {recruiter.phone}
+                  <Phone className="h-4 w-4 text-muted-foreground mr-2" />
+                  <span className="text-foreground">{recruiter.phone}</span>
                 </div>
               </div>
 
               <div className="mt-4">
-                <div className="text-sm font-medium">Verfügbarkeit</div>
-                <div className="text-sm text-gray-500">{recruiter.availability}</div>
+                <div className="text-sm font-medium text-foreground">Verfügbarkeit</div>
+                <div className="text-sm text-muted-foreground">{recruiter.availability}</div>
               </div>
 
               {recruiter.currentCampaign && (
                 <div className="mt-4">
-                  <div className="text-sm font-medium">Aktuelle Kampagne</div>
-                  <div className="text-sm text-gray-500">{recruiter.currentCampaign}</div>
+                  <div className="text-sm font-medium text-foreground">Aktuelle Kampagne</div>
+                  <div className="text-sm text-muted-foreground">{recruiter.currentCampaign}</div>
                 </div>
               )}
 

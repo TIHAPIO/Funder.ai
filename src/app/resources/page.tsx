@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from "@/components/ui/button"
 import { 
   Plus, 
@@ -13,6 +15,7 @@ import {
   Trash,
   Link as LinkIcon
 } from 'lucide-react'
+import { useTheme } from '@/components/providers/ThemeProvider'
 
 interface BaseResource {
   id: number;
@@ -85,6 +88,8 @@ interface ResourceCategory {
 }
 
 export default function ResourcesPage() {
+  const { getCardClass, getBadgeClass, getContainerClass, getTextClass } = useTheme();
+
   const resourceCategories: ResourceCategory[] = [
     {
       title: "Mietautos",
@@ -148,7 +153,7 @@ export default function ResourcesPage() {
         return (
           <>
             <div className="font-medium">{item.itemType}</div>
-            <div className="text-sm text-gray-500">
+            <div className={`text-sm ${getTextClass('muted')}`}>
               Größen: {Object.entries(item.sizes).map(([size, count]) => 
                 `${size}(${count})`).join(', ')}
             </div>
@@ -163,19 +168,19 @@ export default function ResourcesPage() {
           <>
             <div className="font-medium">{item.name}</div>
             {'status' in item && (
-              <div className="text-sm text-gray-500">Status: {item.status}</div>
+              <div className={`text-sm ${getTextClass('muted')}`}>Status: {item.status}</div>
             )}
             {'campaign' in item && item.campaign && (
-              <div className="text-sm text-blue-600 flex items-center">
+              <div className="text-sm text-blue-600 dark:text-blue-400 flex items-center">
                 <LinkIcon className="h-3 w-3 mr-1" />
                 {item.campaign}
               </div>
             )}
             {'location' in item && (
-              <div className="text-sm text-gray-500">Standort: {item.location}</div>
+              <div className={`text-sm ${getTextClass('muted')}`}>Standort: {item.location}</div>
             )}
             {'capacity' in item && (
-              <div className="text-sm text-gray-500">
+              <div className={`text-sm ${getTextClass('muted')}`}>
                 Kapazität: {typeof item.capacity === 'number' ? `${item.capacity} Personen` : item.capacity}
               </div>
             )}
@@ -185,8 +190,8 @@ export default function ResourcesPage() {
   };
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
+    <div className={getContainerClass('base')}>
+      <div className={getContainerClass('header')}>
         <h1 className="text-4xl font-bold">Ressourcen</h1>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
@@ -195,16 +200,16 @@ export default function ResourcesPage() {
       </div>
 
       {/* Resource Categories */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className={getContainerClass('grid')}>
         {resourceCategories.map((category) => (
-          <div key={category.title} className="bg-white rounded-lg shadow p-6 relative">
+          <div key={category.title} className={getCardClass()}>
             {category.needsReview && (
               <div className="absolute bottom-2 left-2 w-3 h-3 bg-yellow-400 rounded-full" 
                    title="Überprüfung erforderlich"/>
             )}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center">
-                <category.icon className="h-6 w-6 text-blue-500 mr-2" />
+                <category.icon className="h-6 w-6 text-blue-500 dark:text-blue-400 mr-2" />
                 <h2 className="text-lg font-semibold">{category.title}</h2>
               </div>
               <div className="flex space-x-2">
@@ -219,7 +224,7 @@ export default function ResourcesPage() {
 
             <div className="space-y-4">
               {category.items.map((item) => (
-                <div key={item.id} className="bg-gray-50 p-3 rounded relative group">
+                <div key={item.id} className={getCardClass({ hover: true })}>
                   <div className="flex justify-between items-start">
                     <div>
                       {renderItemContent(item)}
@@ -228,7 +233,7 @@ export default function ResourcesPage() {
                       <Button variant="ghost" size="sm">
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="text-red-600">
+                      <Button variant="ghost" size="sm" className="text-red-600 dark:text-red-400">
                         <Trash className="h-4 w-4" />
                       </Button>
                     </div>
@@ -241,9 +246,9 @@ export default function ResourcesPage() {
       </div>
 
       {/* Critical Resources Alert */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className={getCardClass()}>
         <div className="flex items-center mb-4">
-          <AlertTriangle className="h-6 w-6 text-yellow-500 mr-2" />
+          <AlertTriangle className="h-6 w-6 text-yellow-500 dark:text-yellow-400 mr-2" />
           <h2 className="text-lg font-semibold">Kritische Ressourcen</h2>
         </div>
         <div className="space-y-4">
@@ -272,24 +277,22 @@ export default function ResourcesPage() {
           ].map((alert) => (
             <div
               key={alert.item}
-              className="flex items-center justify-between p-4 border rounded"
+              className={`flex items-center justify-between p-4 ${getCardClass()}`}
             >
               <div>
                 <div className="font-medium">{alert.item}</div>
-                <div className="text-sm text-gray-500">
+                <div className={`text-sm ${getTextClass('muted')}`}>
                   Aktuell: {alert.current} (Minimum: {alert.minimum})
                 </div>
-                <div className="text-sm text-blue-600 flex items-center">
+                <div className="text-sm text-blue-600 dark:text-blue-400 flex items-center">
                   <LinkIcon className="h-3 w-3 mr-1" />
                   {alert.campaign}
                 </div>
               </div>
               <span
-                className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  alert.status === "Kritisch"
-                    ? "bg-red-100 text-red-800"
-                    : "bg-yellow-100 text-yellow-800"
-                }`}
+                className={getBadgeClass(
+                  alert.status === "Kritisch" ? "error" : "warning"
+                )}
               >
                 {alert.status}
               </span>

@@ -40,7 +40,7 @@ export default function CampaignsPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header Controls */}
-      <div className="sticky top-0 z-10 p-4 bg-background/80 backdrop-blur-sm border-b">
+      <div className="sticky top-0 z-10 p-4 bg-background/80 dark:bg-background/80 backdrop-blur-sm border-b border-border dark:border-border">
         <div className="flex justify-between items-center max-w-[1800px] mx-auto">
           <div className="flex items-center gap-4">
             <Button
@@ -80,7 +80,7 @@ export default function CampaignsPage() {
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <span className="font-medium px-4 py-2 bg-muted rounded-md">
+            <span className="font-medium px-4 py-2 bg-muted dark:bg-muted rounded-md text-foreground dark:text-foreground">
               {zoomLevel === 'year' 
                 ? currentDate.getFullYear()
                 : currentDate.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })

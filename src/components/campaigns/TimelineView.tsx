@@ -12,10 +12,10 @@ interface TimelineViewProps {
 }
 
 const statusColors = {
-  completed: 'bg-gray-50 border-gray-200 text-gray-600',
-  active: 'bg-green-50 border-green-200 text-green-700',
-  preparation: 'bg-yellow-50 border-yellow-200 text-yellow-700',
-  planned: 'bg-blue-50 border-blue-200 text-blue-700'
+  completed: 'bg-muted dark:bg-muted border-border dark:border-border text-muted-foreground dark:text-muted-foreground',
+  active: 'bg-green-100/50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300',
+  preparation: 'bg-yellow-100/50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-300',
+  planned: 'bg-blue-100/50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300'
 }
 
 export function TimelineView({ campaigns, markers, zoomLevel, currentDate }: TimelineViewProps) {
@@ -134,7 +134,7 @@ export function TimelineView({ campaigns, markers, zoomLevel, currentDate }: Tim
             minWidth: timelineWidth
           }}>
             {markers.map((marker, index) => (
-              <div key={index} className="text-center border-l border-gray-100 first:border-l-0">
+              <div key={index} className="text-center border-l border-border first:border-l-0">
                 {marker.isMonth ? (
                   <div className="font-medium text-muted-foreground">{marker.label}</div>
                 ) : (
@@ -168,7 +168,7 @@ export function TimelineView({ campaigns, markers, zoomLevel, currentDate }: Tim
             height: campaignRows.length * 70 + 'px'
           }}>
             {markers.map((_, index) => (
-              <div key={index} className="border-l border-gray-100 first:border-l-0 h-full" />
+              <div key={index} className="border-l border-border/30 first:border-l-0 h-full" />
             ))}
           </div>
 
@@ -206,17 +206,17 @@ export function TimelineView({ campaigns, markers, zoomLevel, currentDate }: Tim
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-1 mb-0.5">
                             <h3 className="font-medium text-sm truncate">{campaign.name}</h3>
-                            <span className="text-[10px] px-1.5 rounded-full bg-white/50 capitalize whitespace-nowrap">
+                            <span className="text-[10px] px-1.5 rounded-full bg-background/50 dark:bg-background/50 capitalize whitespace-nowrap">
                               {campaign.status}
                             </span>
                           </div>
                           <p className="text-xs text-muted-foreground truncate">{campaign.location}</p>
                         </div>
                         <div className="flex flex-col items-end">
-                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/80 whitespace-nowrap">
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-background/50 dark:bg-background/50 whitespace-nowrap">
                             {formatDate(campaign.startDate)}
                           </span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/80 whitespace-nowrap">
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-background/50 dark:bg-background/50 whitespace-nowrap">
                             {formatDate(campaign.endDate)}
                           </span>
                         </div>
@@ -249,7 +249,7 @@ export function TimelineView({ campaigns, markers, zoomLevel, currentDate }: Tim
 
                       {/* Hover Details */}
                       {isHovered && (
-                        <div className="absolute left-full top-0 ml-2 z-50 w-64 p-3 rounded-lg shadow-lg bg-white border">
+                        <div className="absolute left-full top-0 ml-2 z-50 w-64 p-3 rounded-lg shadow-lg bg-background dark:bg-background border">
                           <div className="text-sm font-medium mb-2">{campaign.name}</div>
                           <div className="text-xs space-y-1">
                             <div>

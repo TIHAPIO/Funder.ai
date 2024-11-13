@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
-import { Button } from '@/components/ui/button';
-import { useTheme } from 'next-themes';
+import { useAuth } from '../../context/AuthContext';
+import { Button } from '../ui/button';
+import { useTheme as useNextTheme } from 'next-themes';
 import {
   Globe,
   FileText,
@@ -18,6 +18,7 @@ import {
   Moon
 } from 'lucide-react';
 import { Dispatch, SetStateAction } from 'react';
+import { useTheme } from '../providers/ThemeProvider';
 
 interface SidebarProps {
   isExpanded: boolean;
@@ -36,7 +37,8 @@ const navigation = [
 export function Sidebar({ isExpanded, setIsExpanded }: SidebarProps) {
   const pathname = usePathname();
   const { logout } = useAuth();
-  const { theme, setTheme } = useTheme();
+  const { getTextClass } = useTheme();
+  const { theme, setTheme } = useNextTheme();
 
   const handleLogout = async () => {
     try {
@@ -46,11 +48,15 @@ export function Sidebar({ isExpanded, setIsExpanded }: SidebarProps) {
     }
   };
 
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
+
   return (
     <div 
       className={`
         flex flex-col h-full border-r transition-all duration-300 ease-in-out relative
-        bg-background
+        bg-background border-border
       `}
     >
       {/* Expand/Collapse Button */}
@@ -58,11 +64,12 @@ export function Sidebar({ isExpanded, setIsExpanded }: SidebarProps) {
         onClick={() => setIsExpanded(!isExpanded)}
         className={`
           absolute -right-3 top-6 w-6 h-6 border rounded-full flex items-center justify-center
-          bg-background transition-transform duration-300
+          bg-background border-border
+          hover:bg-accent transition-all duration-300
           ${isExpanded ? 'transform rotate-180' : ''}
         `}
       >
-        <ChevronRight className="w-4 h-4 text-muted-foreground" />
+        <ChevronRight className={`w-4 h-4 ${getTextClass('muted')}`} />
       </button>
 
       <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
@@ -85,8 +92,8 @@ export function Sidebar({ isExpanded, setIsExpanded }: SidebarProps) {
                 className={`
                   group flex items-center px-2 py-2 text-sm font-medium rounded-md
                   ${isActive
-                    ? 'bg-muted text-foreground'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    ? 'bg-accent text-accent-foreground'
+                    : `${getTextClass('muted')} hover:bg-accent hover:text-accent-foreground`
                   }
                   ${isExpanded ? '' : 'justify-center'}
                 `}
@@ -95,7 +102,7 @@ export function Sidebar({ isExpanded, setIsExpanded }: SidebarProps) {
                 <Icon
                   className={`
                     flex-shrink-0 h-5 w-5
-                    ${isActive ? 'text-foreground' : 'text-muted-foreground'}
+                    ${isActive ? 'text-accent-foreground' : getTextClass('muted')}
                     ${isExpanded ? 'mr-3' : ''}
                   `}
                 />
@@ -106,31 +113,28 @@ export function Sidebar({ isExpanded, setIsExpanded }: SidebarProps) {
         </nav>
       </div>
 
-      <div className="px-4 py-2 border-t">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="w-full flex items-center justify-center h-10"
-          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-        >
-          {theme === 'dark' ? (
-            <Sun className="h-5 w-5" />
-          ) : (
-            <Moon className="h-5 w-5" />
-          )}
-          {isExpanded && (
-            <span className="ml-2">{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
-          )}
-        </Button>
-      </div>
-
-      <div className={`flex-shrink-0 flex border-t p-4 ${isExpanded ? '' : 'justify-center'}`}>
+      <div className="flex-shrink-0 flex flex-col border-t border-border p-4 space-y-2">
         <Button
           variant="ghost"
           className={`
-            flex items-center
-            ${isExpanded ? 'w-full' : 'w-10 h-10 p-0'}
+            flex items-center hover:bg-accent
+            ${isExpanded ? 'w-full justify-start' : 'w-10 h-10 p-0 justify-center'}
+          `}
+          onClick={toggleTheme}
+          title={!isExpanded ? (theme === 'dark' ? 'Light Mode' : 'Dark Mode') : undefined}
+        >
+          {theme === 'dark' ? (
+            <Sun className={`h-5 w-5 ${isExpanded ? 'mr-3' : ''}`} />
+          ) : (
+            <Moon className={`h-5 w-5 ${isExpanded ? 'mr-3' : ''}`} />
+          )}
+          {isExpanded && (theme === 'dark' ? 'Light Mode' : 'Dark Mode')}
+        </Button>
+        <Button
+          variant="ghost"
+          className={`
+            flex items-center hover:bg-accent
+            ${isExpanded ? 'w-full justify-start' : 'w-10 h-10 p-0 justify-center'}
           `}
           onClick={handleLogout}
           title={!isExpanded ? 'Abmelden' : undefined}

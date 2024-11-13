@@ -1,170 +1,151 @@
-import React from 'react'
-import { Button } from "@/components/ui/button"
-import { Save, User, Bell, Shield, Globe, Phone } from 'lucide-react'
+import { Button } from "../../components/ui/button"
+import { useTheme } from "next-themes"
 
-const SettingsPage: React.FC = () => {
+export default function SettingsPage() {
+  const { theme, setTheme } = useTheme()
+
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-4xl font-bold">Einstellungen</h1>
-        <Button>
-          <Save className="mr-2 h-4 w-4" />
-          Änderungen speichern
-        </Button>
-      </div>
-
-      {/* Support Contact */}
-      <div className="bg-white rounded-lg shadow p-6">
+    <div className="space-y-6">
+      {/* Profile Overview */}
+      <div className="bg-card rounded-lg shadow p-6">
         <div className="flex items-center mb-4">
-          <Phone className="h-6 w-6 text-blue-500 mr-2" />
-          <h2 className="text-lg font-semibold">Support Kontakt</h2>
-        </div>
-        <div className="space-y-2">
-          <p className="text-gray-600">Tim Hanspaul</p>
-          <p className="text-gray-600">+017647804845</p>
+          <div className="h-16 w-16 rounded-full bg-accent flex items-center justify-center text-xl font-bold">
+            TH
+          </div>
+          <div className="ml-4">
+            <h2 className="text-xl font-bold">Profil</h2>
+            <div className="space-y-2">
+              <p className="text-muted-foreground">Tim Hanspaul</p>
+              <p className="text-muted-foreground">+017647804845</p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Settings Sections */}
-      <div className="grid gap-6">
-        {/* Profile Settings */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6">
-            <div className="flex items-center mb-4">
-              <User className="h-6 w-6 text-blue-500 mr-2" />
-              <h2 className="text-lg font-semibold">Profil Einstellungen</h2>
+      {/* Profile Settings */}
+      <div className="bg-card rounded-lg shadow">
+        <div className="p-6">
+          <h2 className="text-lg font-semibold mb-4">Profil Einstellungen</h2>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-foreground">Name</label>
+              <input
+                type="text"
+                className="mt-1 block w-full rounded-md border-border bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring"
+                defaultValue="Tim Hanspaul"
+              />
             </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Name</label>
-                <input
-                  type="text"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="Ihr Name"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">E-Mail</label>
-                <input
-                  type="email"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="ihre.email@example.com"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Position</label>
-                <input
-                  type="text"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="Ihre Position"
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground">E-Mail</label>
+              <input
+                type="email"
+                className="mt-1 block w-full rounded-md border-border bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring"
+                defaultValue="tim.hanspaul@fundr.ai"
+              />
             </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground">Position</label>
+              <input
+                type="text"
+                className="mt-1 block w-full rounded-md border-border bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring"
+                defaultValue="Geschäftsführer"
+              />
+            </div>
+            <Button>Speichern</Button>
           </div>
         </div>
+      </div>
 
-        {/* Notification Settings */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6">
-            <div className="flex items-center mb-4">
-              <Bell className="h-6 w-6 text-blue-500 mr-2" />
-              <h2 className="text-lg font-semibold">Benachrichtigungen</h2>
-            </div>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-medium">E-Mail Benachrichtigungen</h3>
-                  <p className="text-sm text-gray-500">Erhalten Sie Updates per E-Mail</p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" className="sr-only peer" />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
+      {/* Notification Settings */}
+      <div className="bg-card rounded-lg shadow">
+        <div className="p-6">
+          <h2 className="text-lg font-semibold mb-4">Benachrichtigungen</h2>
+          <div className="space-y-4">
+            <label className="flex items-center justify-between">
+              <div>
+                <h3 className="font-medium">E-Mail Benachrichtigungen</h3>
+                <p className="text-sm text-muted-foreground">Erhalten Sie Updates per E-Mail</p>
               </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-medium">WhatsApp Benachrichtigungen</h3>
-                  <p className="text-sm text-gray-500">Erhalten Sie Updates per WhatsApp</p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" className="sr-only peer" defaultChecked />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" className="sr-only peer" />
+                <div className="w-11 h-6 bg-muted peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-ring rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+              </label>
+            </label>
+            <label className="flex items-center justify-between">
+              <div>
+                <h3 className="font-medium">WhatsApp Benachrichtigungen</h3>
+                <p className="text-sm text-muted-foreground">Erhalten Sie Updates per WhatsApp</p>
               </div>
-            </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" className="sr-only peer" defaultChecked />
+                <div className="w-11 h-6 bg-muted peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-ring rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+              </label>
+            </label>
           </div>
         </div>
+      </div>
 
-        {/* Security Settings */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6">
-            <div className="flex items-center mb-4">
-              <Shield className="h-6 w-6 text-blue-500 mr-2" />
-              <h2 className="text-lg font-semibold">Sicherheit</h2>
+      {/* Security Settings */}
+      <div className="bg-card rounded-lg shadow">
+        <div className="p-6">
+          <h2 className="text-lg font-semibold mb-4">Sicherheit</h2>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-foreground">Passwort ändern</label>
+              <input
+                type="password"
+                className="mt-1 block w-full rounded-md border-border bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring"
+              />
             </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Passwort ändern</label>
-                <input
-                  type="password"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="Neues Passwort"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Passwort bestätigen</label>
-                <input
-                  type="password"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="Passwort bestätigen"
-                />
-              </div>
-              <Button variant="outline" className="w-full">
-                Passwort aktualisieren
-              </Button>
+            <div>
+              <label className="block text-sm font-medium text-foreground">Passwort bestätigen</label>
+              <input
+                type="password"
+                className="mt-1 block w-full rounded-md border-border bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring"
+              />
             </div>
+            <Button>Passwort ändern</Button>
           </div>
         </div>
+      </div>
 
-        {/* System Settings */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6">
-            <div className="flex items-center mb-4">
-              <Globe className="h-6 w-6 text-blue-500 mr-2" />
-              <h2 className="text-lg font-semibold">System</h2>
+      {/* System Settings */}
+      <div className="bg-card rounded-lg shadow">
+        <div className="p-6">
+          <h2 className="text-lg font-semibold mb-4">System</h2>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-foreground">Sprache</label>
+              <select className="mt-1 block w-full rounded-md border-border bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring">
+                <option>Deutsch</option>
+                <option>English</option>
+              </select>
             </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Sprache</label>
-                <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                  <option>Deutsch</option>
-                  <option>English</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Zeitzone</label>
-                <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                  <option>Berlin (GMT+1)</option>
-                  <option>London (GMT)</option>
-                  <option>New York (GMT-5)</option>
-                </select>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-medium">Dark Mode</h3>
-                  <p className="text-sm text-gray-500">Dunkles Erscheinungsbild aktivieren</p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" className="sr-only peer" />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground">Zeitzone</label>
+              <select className="mt-1 block w-full rounded-md border-border bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring">
+                <option>Europe/Berlin (GMT+1)</option>
+                <option>UTC</option>
+              </select>
             </div>
+            <label className="flex items-center justify-between">
+              <div>
+                <h3 className="font-medium">Dark Mode</h3>
+                <p className="text-sm text-muted-foreground">Dunkles Erscheinungsbild aktivieren</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer" 
+                  checked={theme === 'dark'}
+                  onChange={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                />
+                <div className="w-11 h-6 bg-muted peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-ring rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+              </label>
+            </label>
           </div>
         </div>
       </div>
     </div>
   )
 }
-
-export default SettingsPage
