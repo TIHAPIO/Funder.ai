@@ -1,7 +1,9 @@
-import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { Sidebar } from "@/components/navigation/sidebar";
+import { metadata } from "./metadata";
+import { AuthProvider } from "@/context/AuthContext";
+import { MainLayout } from "@/components/templates/main-layout";
+import { ThemeProvider } from "next-themes";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -15,29 +17,28 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-export const metadata: Metadata = {
-  title: "fundr.ai - CRM für Fundraising",
-  description: "CRM-System für die Verwaltung von Fundraising-Kampagnen",
-};
+export { metadata };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="de">
+    <html lang="de" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <div className="flex h-screen">
-          <div className="w-64 h-full">
-            <Sidebar />
-          </div>
-          <div className="flex-1 overflow-auto">
-            <main className="p-8">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>
+            <MainLayout>
               {children}
-            </main>
-          </div>
-        </div>
+            </MainLayout>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
