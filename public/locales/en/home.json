@@ -1,0 +1,31 @@
+{
+  "welcome": "Welcome to fundr.ai",
+  "status": {
+    "overtime": "Overtime work required today",
+    "completed": "All work completed - You can go home!"
+  },
+  "criticalTasks": {
+    "title": "Critical Tasks",
+    "empty": "No critical tasks available",
+    "items": {
+      "campaign": "Campaign XYZ needs review",
+      "requests": "3 new requests waiting for response",
+      "resources": "Resource update required"
+    }
+  },
+  "quickAccess": {
+    "title": "Quick Access",
+    "campaigns": {
+      "title": "Manage Campaigns",
+      "description": "Create and edit your fundraising campaigns"
+    },
+    "requests": {
+      "title": "Process Requests",
+      "description": "Respond to open requests and messages"
+    },
+    "resources": {
+      "title": "Update Resources",
+      "description": "Manage your available resources"
+    }
+  }
+}

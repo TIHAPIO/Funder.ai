@@ -1,62 +1,56 @@
-export interface Message {
+import { BaseDocument } from '../lib/services/base';
+
+export interface ChatMessage {
   id: string;
   content: string;
   senderId: string;
-  senderName: string;
-  timestamp: Date;
-  attachments?: Attachment[];
-  reactions?: MessageReaction[];
-  replyTo?: string; // ID of the message being replied to
-  readBy: string[]; // Array of user IDs who have read the message
-  threadId?: string;
-}
-
-export interface Attachment {
-  id: string;
-  type: 'image' | 'file';
-  url: string;
-  name: string;
-  size: number;
-  mimeType: string;
-}
-
-export interface MessageReaction {
-  emoji: string;
-  userId: string;
-  timestamp: Date;
-}
-
-export interface ChatRoom {
-  id: string;
-  participants: string[];
-  lastMessage?: {
-    content: string;
-    timestamp: Date;
+  timestamp: string;
+  type: 'text' | 'image' | 'file';
+  metadata?: {
+    fileName?: string;
+    fileSize?: number;
+    fileType?: string;
+    imageUrl?: string;
   };
-  createdAt: Date;
-  typingUsers: string[]; // Array of user IDs currently typing
-  unreadCount?: number;
-  isGroup: boolean;
-  groupName?: string;
 }
 
 export interface ChatParticipant {
   id: string;
-  name: string;
-  photoURL?: string;
-  presence: UserPresence;
-  lastSeen?: Date;
+  lastSeen: string;
+  typing: boolean;
 }
 
-export interface UserPresence {
-  status: 'online' | 'offline' | 'away';
-  lastActive: Date;
+export interface Chat extends BaseDocument {
+  participants: Record<string, ChatParticipant>;
+  lastMessage?: ChatMessage;
+  lastActivity: string;
+  type: 'direct' | 'group';
+  name?: string; // For group chats
+  imageUrl?: string; // For group chats
+  metadata?: {
+    createdBy: string;
+    description?: string;
+    isEncrypted?: boolean;
+  };
 }
 
-export interface Thread {
+export interface ChatNotification {
+  chatId: string;
+  messageId: string;
+  senderId: string;
+  content: string;
+  timestamp: string;
+  read: boolean;
+}
+
+export interface ChatAttachment {
   id: string;
-  parentMessageId: string;
-  participantIds: string[];
-  lastReplyAt: Date;
-  replyCount: number;
+  chatId: string;
+  messageId: string;
+  fileName: string;
+  fileSize: number;
+  fileType: string;
+  url: string;
+  uploadedBy: string;
+  timestamp: string;
 }

@@ -1,4 +1,4 @@
-import { useRef, useEffect, useMemo, useState } from 'react'
+import { useRef, useEffect, useMemo, useState, useCallback } from 'react'
 import { Campaign, TimelineMarker, ZoomLevel } from '../../types/campaign'
 import { Users, Car, Building, Box } from 'lucide-react'
 import { getResourceStatus, getTeamStatus, formatDate, getTimelineMarkers } from '../../utils/campaign-helpers'
@@ -12,10 +12,17 @@ interface TimelineViewProps {
 }
 
 const statusColors = {
-  completed: 'bg-muted dark:bg-muted border-border dark:border-border text-muted-foreground dark:text-muted-foreground',
+  completed: 'bg-muted/50 dark:bg-muted/50 border-border/50 dark:border-border/50 text-muted-foreground dark:text-muted-foreground',
   active: 'bg-green-100/50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300',
   preparation: 'bg-yellow-100/50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-300',
   planned: 'bg-blue-100/50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300'
+}
+
+const statusLabels = {
+  completed: 'Abgeschlossen',
+  active: 'Aktiv',
+  preparation: 'In Vorbereitung',
+  planned: 'Geplant'
 }
 
 export function TimelineView({ campaigns, markers: initialMarkers, zoomLevel, currentDate }: TimelineViewProps) {
@@ -24,10 +31,18 @@ export function TimelineView({ campaigns, markers: initialMarkers, zoomLevel, cu
   const headerRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [hoveredCampaign, setHoveredCampaign] = useState<number | null>(null)
+  const [focusedCampaign, setFocusedCampaign] = useState<number | null>(null)
 
-  const handleCampaignClick = (campaignId: number) => {
+  const handleCampaignClick = useCallback((campaignId: number) => {
     router.push(`/campaigns/${campaignId}`)
-  }
+  }, [router])
+
+  const handleKeyPress = useCallback((e: React.KeyboardEvent, campaignId: number) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      handleCampaignClick(campaignId)
+    }
+  }, [handleCampaignClick])
 
   // Generate markers for all months when in month view
   const allMarkers = useMemo(() => {
@@ -35,7 +50,6 @@ export function TimelineView({ campaigns, markers: initialMarkers, zoomLevel, cu
       return initialMarkers
     }
 
-    // Generate markers for all months in the year
     const yearMarkers: TimelineMarker[] = []
     for (let month = 0; month < 12; month++) {
       const monthDate = new Date(currentDate.getFullYear(), month, 1)
@@ -45,39 +59,54 @@ export function TimelineView({ campaigns, markers: initialMarkers, zoomLevel, cu
     return yearMarkers
   }, [zoomLevel, currentDate, initialMarkers])
 
-  // Sync horizontal scroll between timeline and header
+  // Sync horizontal scroll between timeline and header with debounce
   useEffect(() => {
     const container = containerRef.current
     if (!container) return
 
+    let scrollTimeout: NodeJS.Timeout
     const handleScroll = (e: Event) => {
-      const scrollLeft = (e.target as HTMLElement).scrollLeft
-      if (headerRef.current) {
-        headerRef.current.style.transform = `translateX(-${scrollLeft}px)`
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout)
       }
+      
+      scrollTimeout = setTimeout(() => {
+        const scrollLeft = (e.target as HTMLElement).scrollLeft
+        if (headerRef.current) {
+          headerRef.current.style.transform = `translateX(-${scrollLeft}px)`
+        }
+      }, 10)
     }
 
     container.addEventListener('scroll', handleScroll)
-    return () => container.removeEventListener('scroll', handleScroll)
+    return () => {
+      container.removeEventListener('scroll', handleScroll)
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout)
+      }
+    }
   }, [])
 
-  // Scroll to current month when in month view
+  // Scroll to current month when in month view with smooth animation
   useEffect(() => {
     if (zoomLevel === 'month' && containerRef.current) {
       const monthWidth = 1200 // Width of each month in pixels
       const scrollPosition = currentDate.getMonth() * monthWidth
-      containerRef.current.scrollLeft = scrollPosition
+      containerRef.current.scrollTo({
+        left: scrollPosition,
+        behavior: 'smooth'
+      })
     }
   }, [zoomLevel, currentDate])
 
-  const getCampaignPosition = (campaign: Campaign) => {
+  const getCampaignPosition = useCallback((campaign: Campaign) => {
     const startDate = new Date(campaign.startDate)
     const endDate = new Date(campaign.endDate)
     
     if (zoomLevel === 'year') {
       const yearStart = new Date(currentDate.getFullYear(), 0, 1)
       const yearEnd = new Date(currentDate.getFullYear(), 11, 31)
-      const daysInYear = 365 // Simplified, not accounting for leap years
+      const daysInYear = new Date(currentDate.getFullYear(), 11, 31).getDate() === 31 ? 366 : 365
       
       const daysFromYearStart = Math.max(0, (startDate.getTime() - yearStart.getTime()) / (1000 * 60 * 60 * 24))
       const campaignDays = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
@@ -89,17 +118,17 @@ export function TimelineView({ campaigns, markers: initialMarkers, zoomLevel, cu
       }
     } else {
       const yearStart = new Date(currentDate.getFullYear(), 0, 1)
-      const totalDaysInYear = 365 // Simplified
+      const daysInYear = new Date(currentDate.getFullYear(), 11, 31).getDate() === 31 ? 366 : 365
       const daysFromYearStart = Math.max(0, (startDate.getTime() - yearStart.getTime()) / (1000 * 60 * 60 * 24))
       const campaignDays = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
       
       return {
-        left: `${(daysFromYearStart / totalDaysInYear) * 1200 * 12}px`, // 1200px per month
-        width: `${(campaignDays / totalDaysInYear) * 1200 * 12}px`,
+        left: `${(daysFromYearStart / daysInYear) * 1200 * 12}px`,
+        width: `${(campaignDays / daysInYear) * 1200 * 12}px`,
         isVisible: startDate.getFullYear() === currentDate.getFullYear()
       }
     }
-  }
+  }, [zoomLevel, currentDate])
 
   const campaignRows = useMemo(() => {
     const rows: Campaign[][] = []
@@ -124,7 +153,11 @@ export function TimelineView({ campaigns, markers: initialMarkers, zoomLevel, cu
             const existingEnd = new Date(existingCampaign.endDate)
             const campaignStart = new Date(campaign.startDate)
             const campaignEnd = new Date(campaign.endDate)
-            return campaignStart > existingEnd || campaignEnd < existingStart
+            
+            // Add buffer between campaigns
+            const buffer = 24 * 60 * 60 * 1000 // 1 day in milliseconds
+            return campaignStart.getTime() > (existingEnd.getTime() + buffer) || 
+                   campaignEnd.getTime() < (existingStart.getTime() - buffer)
           })
 
           if (canFitInRow) {
@@ -138,15 +171,15 @@ export function TimelineView({ campaigns, markers: initialMarkers, zoomLevel, cu
     })
 
     return rows
-  }, [campaigns, currentDate, zoomLevel])
+  }, [campaigns, getCampaignPosition])
 
-  const timelineWidth = zoomLevel === 'year' ? 'w-[2400px]' : 'w-[14400px]' // 1200px per month in month view
+  const timelineWidth = zoomLevel === 'year' ? 'w-[2400px]' : 'w-[14400px]'
 
   return (
-    <div className="h-screen bg-background">
+    <div className="h-screen bg-background" role="region" aria-label="Kampagnen-Zeitstrahl">
       {/* Timeline Header */}
       <div className="sticky top-0 border-b pb-2 bg-background z-10 overflow-hidden">
-        <div className="text-center text-xl font-medium py-2">
+        <div className="text-center text-xl font-medium py-2" role="heading" aria-level={1}>
           {zoomLevel === 'year' 
             ? currentDate.getFullYear().toString()
             : new Intl.DateTimeFormat('de-DE', { month: 'long', year: 'numeric' }).format(currentDate)
@@ -176,6 +209,8 @@ export function TimelineView({ campaigns, markers: initialMarkers, zoomLevel, cu
           height: 'calc(100vh - 180px)',
           scrollBehavior: 'smooth'
         }}
+        role="list"
+        aria-label="Kampagnen Liste"
       >
         <div className={`relative px-4 ${timelineWidth}`}>
           {/* Grid Lines */}
@@ -196,12 +231,19 @@ export function TimelineView({ campaigns, markers: initialMarkers, zoomLevel, cu
               row.map((campaign) => {
                 const position = getCampaignPosition(campaign)
                 const isHovered = hoveredCampaign === campaign.id
+                const isFocused = focusedCampaign === campaign.id
                 const statusColor = statusColors[campaign.status]
+                const teamStatus = getTeamStatus(campaign.team)
+                const resourceStatus = {
+                  accommodation: getResourceStatus(campaign.resources.accommodation.confirmed, campaign.resources.accommodation.required),
+                  vehicles: getResourceStatus(campaign.resources.vehicles.confirmed, campaign.resources.vehicles.required),
+                  equipment: getResourceStatus(campaign.resources.equipment.confirmed, campaign.resources.equipment.required)
+                }
 
                 return (
                   <div
                     key={campaign.id}
-                    className="absolute mb-1 group cursor-pointer"
+                    className="absolute mb-1 group"
                     style={{
                       left: position.left,
                       width: position.width,
@@ -211,10 +253,16 @@ export function TimelineView({ campaigns, markers: initialMarkers, zoomLevel, cu
                     onClick={() => handleCampaignClick(campaign.id)}
                     onMouseEnter={() => setHoveredCampaign(campaign.id)}
                     onMouseLeave={() => setHoveredCampaign(null)}
+                    onFocus={() => setFocusedCampaign(campaign.id)}
+                    onBlur={() => setFocusedCampaign(null)}
+                    onKeyDown={(e) => handleKeyPress(e, campaign.id)}
+                    role="listitem"
+                    tabIndex={0}
+                    aria-label={`Kampagne ${campaign.name}, Status: ${statusLabels[campaign.status]}`}
                   >
                     <div className={`
                       p-2 rounded-lg border shadow-sm transition-all duration-200
-                      ${isHovered ? 'shadow-md ring-2 ring-primary/20 -translate-y-0.5' : ''}
+                      ${(isHovered || isFocused) ? 'shadow-md ring-2 ring-primary/20 -translate-y-0.5' : ''}
                       ${statusColor}
                     `}>
                       <div className="flex justify-between items-start gap-2">
@@ -222,7 +270,7 @@ export function TimelineView({ campaigns, markers: initialMarkers, zoomLevel, cu
                           <div className="flex items-center gap-1 mb-0.5">
                             <h3 className="font-medium text-sm truncate">{campaign.name}</h3>
                             <span className="text-[10px] px-1.5 rounded-full bg-background/50 dark:bg-background/50 capitalize whitespace-nowrap">
-                              {campaign.status}
+                              {statusLabels[campaign.status]}
                             </span>
                           </div>
                           <p className="text-xs text-muted-foreground truncate">{campaign.location}</p>
@@ -238,53 +286,70 @@ export function TimelineView({ campaigns, markers: initialMarkers, zoomLevel, cu
                       </div>
                       
                       <div className="grid grid-cols-4 gap-1 mt-1">
-                        <div className="flex items-center gap-1" title="Team Status">
+                        <div 
+                          className="flex items-center gap-1" 
+                          title={`Team Status: ${teamStatus.text} Mitglieder`}
+                          role="status"
+                          aria-label={`Team Status: ${teamStatus.text} Mitglieder`}
+                        >
                           <Users className="w-3 h-3 text-muted-foreground" />
-                          <span className="text-xs">{campaign.team.current.length}/{campaign.team.maxSize}</span>
+                          <span className="text-xs">{teamStatus.text}</span>
                         </div>
-                        <div className="flex items-center gap-1" title="Accommodation Status">
+                        <div 
+                          className="flex items-center gap-1" 
+                          title={`Unterkunft Status: ${resourceStatus.accommodation.text}`}
+                          role="status"
+                          aria-label={`Unterkunft Status: ${resourceStatus.accommodation.text}`}
+                        >
                           <Building className="w-3 h-3 text-muted-foreground" />
-                          <span className="text-xs">
-                            {campaign.resources.accommodation.confirmed}/{campaign.resources.accommodation.required}
-                          </span>
+                          <span className="text-xs">{resourceStatus.accommodation.text}</span>
                         </div>
-                        <div className="flex items-center gap-1" title="Vehicle Status">
+                        <div 
+                          className="flex items-center gap-1" 
+                          title={`Fahrzeug Status: ${resourceStatus.vehicles.text}`}
+                          role="status"
+                          aria-label={`Fahrzeug Status: ${resourceStatus.vehicles.text}`}
+                        >
                           <Car className="w-3 h-3 text-muted-foreground" />
-                          <span className="text-xs">
-                            {campaign.resources.vehicles.confirmed}/{campaign.resources.vehicles.required}
-                          </span>
+                          <span className="text-xs">{resourceStatus.vehicles.text}</span>
                         </div>
-                        <div className="flex items-center gap-1" title="Equipment Status">
+                        <div 
+                          className="flex items-center gap-1" 
+                          title={`Ausrüstung Status: ${resourceStatus.equipment.text}`}
+                          role="status"
+                          aria-label={`Ausrüstung Status: ${resourceStatus.equipment.text}`}
+                        >
                           <Box className="w-3 h-3 text-muted-foreground" />
-                          <span className="text-xs">
-                            {campaign.resources.equipment.confirmed}/{campaign.resources.equipment.required}
-                          </span>
+                          <span className="text-xs">{resourceStatus.equipment.text}</span>
                         </div>
                       </div>
 
-                      {/* Hover Details */}
-                      {isHovered && (
-                        <div className="absolute left-full top-0 ml-2 z-50 w-64 p-3 rounded-lg shadow-lg bg-background dark:bg-background border">
+                      {/* Hover/Focus Details */}
+                      {(isHovered || isFocused) && (
+                        <div 
+                          className="absolute left-full top-0 ml-2 z-50 w-64 p-3 rounded-lg shadow-lg bg-background dark:bg-background border"
+                          role="tooltip"
+                        >
                           <div className="text-sm font-medium mb-2">{campaign.name}</div>
                           <div className="text-xs space-y-1">
                             <div>
                               <span className="text-muted-foreground">Status:</span>{' '}
-                              <span className="capitalize">{campaign.status}</span>
+                              <span className="capitalize">{statusLabels[campaign.status]}</span>
                             </div>
                             <div>
-                              <span className="text-muted-foreground">Location:</span>{' '}
+                              <span className="text-muted-foreground">Standort:</span>{' '}
                               {campaign.location}
                             </div>
                             <div>
-                              <span className="text-muted-foreground">Team Size:</span>{' '}
+                              <span className="text-muted-foreground">Teamgröße:</span>{' '}
                               {campaign.team.current.length}/{campaign.team.maxSize}
                             </div>
                             <div>
-                              <span className="text-muted-foreground">Contact:</span>{' '}
+                              <span className="text-muted-foreground">Kontakt:</span>{' '}
                               {campaign.redCrossOffice.contact.name}
                             </div>
                             <div>
-                              <span className="text-muted-foreground">Office:</span>{' '}
+                              <span className="text-muted-foreground">Büro:</span>{' '}
                               {campaign.redCrossOffice.name}
                             </div>
                           </div>

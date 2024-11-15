@@ -1,0 +1,50 @@
+{
+  "title": "Requests",
+  "actions": {
+    "filter": "Filter",
+    "sort": "Sort",
+    "approve": "Approve",
+    "reject": "Reject"
+  },
+  "status": {
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected"
+  },
+  "types": {
+    "campaign": "Campaign",
+    "resource": "Resource",
+    "modification": "Modification"
+  },
+  "details": {
+    "start": "Start",
+    "end": "End",
+    "teams": "Teams",
+    "tablets": "Required Tablets",
+    "vehicles": "Vehicles",
+    "quantity": "Quantity",
+    "type": "Type",
+    "period": "Period",
+    "campaign": "Campaign",
+    "sizes": {
+      "m": "Size M",
+      "l": "Size L",
+      "xl": "Size XL"
+    },
+    "deliveryDate": "Delivery Date"
+  },
+  "examples": {
+    "campaign": {
+      "title": "New Campaign North-West",
+      "description": "Campaign launch in Hamburg and Bremen"
+    },
+    "resource": {
+      "title": "New Rental Cars",
+      "description": "Additional vehicles for South Campaign"
+    },
+    "modification": {
+      "title": "T-Shirt Reorder",
+      "description": "Stock replenishment"
+    }
+  }
+}

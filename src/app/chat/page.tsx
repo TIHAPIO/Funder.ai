@@ -1,70 +1,44 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { ChatRoom as ChatRoomType } from '@/types/chat';
+import { useTranslation } from '@/hooks/useTranslation';
+import { Button } from '@/components/ui/button';
+import { Plus, Book, Users, MessageSquare, Loader2 } from 'lucide-react';
 import { ChatRoom } from '@/components/chat/ChatRoom';
 import { ContactBook } from '@/components/chat/ContactBook';
-import { Button } from '@/components/ui/button';
-import { getUserChatRooms, createChatRoom } from '@/lib/chat-utils';
-import { MessageSquare, Plus, Users, Book } from 'lucide-react';
+import { useState } from 'react';
 
 export default function ChatPage() {
-  const { user } = useAuth();
-  const [chatRooms, setChatRooms] = useState<ChatRoomType[]>([]);
+  const { user, loading } = useAuth();
+  const { t } = useTranslation();
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [showContactBook, setShowContactBook] = useState(false);
+  const [chatRooms, setChatRooms] = useState<any[]>([]);
 
-  useEffect(() => {
-    if (!user) return;
-
-    const loadChatRooms = async () => {
-      try {
-        const rooms = await getUserChatRooms(user.uid);
-        setChatRooms(rooms);
-        if (rooms.length > 0 && !selectedRoomId) {
-          setSelectedRoomId(rooms[0].id);
-        }
-      } catch (error) {
-        console.error('Error loading chat rooms:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadChatRooms();
-  }, [user, selectedRoomId]);
-
-  const handleCreateRoom = async () => {
-    if (!user) return;
-    setShowContactBook(true);
-  };
-
-  const handleChatCreated = async (roomId: string) => {
-    setSelectedRoomId(roomId);
-    // Refresh the room list
-    if (user) {
-      const rooms = await getUserChatRooms(user.uid);
-      setChatRooms(rooms);
-    }
-  };
-
-  if (!user) {
+  if (!user && !loading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p>Please log in to access chat.</p>
+        <p>{t('chat:loginRequired')}</p>
       </div>
     );
   }
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p>Loading chats...</p>
+        <p>{t('chat:loading')}</p>
       </div>
     );
   }
+
+  const handleCreateRoom = () => {
+    // Implementation for creating a new chat room
+  };
+
+  const handleChatCreated = (chatId: string) => {
+    setSelectedRoomId(chatId);
+    setShowContactBook(false);
+  };
 
   return (
     <div className="flex h-full">
@@ -76,7 +50,7 @@ export default function ChatPage() {
             className="w-full flex items-center gap-2"
           >
             <Plus className="h-4 w-4" />
-            Neuer Chat
+            {t('chat:newChat')}
           </Button>
           <Button
             onClick={() => setShowContactBook(true)}
@@ -84,18 +58,18 @@ export default function ChatPage() {
             className="w-full flex items-center gap-2"
           >
             <Book className="h-4 w-4" />
-            Kontaktbuch
+            {t('chat:contactBook')}
           </Button>
         </div>
+
         <div className="overflow-y-auto h-[calc(100%-105px)]">
           {chatRooms.map((room) => (
             <button
               key={room.id}
               onClick={() => setSelectedRoomId(room.id)}
-              className={`
-                w-full px-4 py-3 flex items-center gap-3 hover:bg-accent
-                ${room.id === selectedRoomId ? 'bg-accent' : ''}
-              `}
+              className={`w-full p-4 flex items-start gap-3 hover:bg-accent/50 transition-colors ${
+                selectedRoomId === room.id ? 'bg-accent' : ''
+              }`}
             >
               {room.isGroup ? (
                 <Users className="h-5 w-5" />
@@ -114,7 +88,7 @@ export default function ChatPage() {
               </div>
               {room.unreadCount ? (
                 <div className="bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">
-                  {room.unreadCount}
+                  {t('chat:unreadMessages', { count: room.unreadCount })}
                 </div>
               ) : null}
             </button>
@@ -129,22 +103,21 @@ export default function ChatPage() {
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-center p-4">
             <Users className="h-12 w-12 mb-4 text-muted-foreground" />
-            <h3 className="text-lg font-medium mb-2">Kein Chat ausgewählt</h3>
+            <h3 className="text-lg font-medium mb-2">{t('chat:noChatSelected.title')}</h3>
             <p className="text-muted-foreground mb-4">
-              Wähle einen Chat aus der Seitenleiste oder erstelle einen neuen Chat
+              {t('chat:noChatSelected.description')}
             </p>
             <Button onClick={handleCreateRoom}>
               <Plus className="h-4 w-4 mr-2" />
-              Neuen Chat erstellen
+              {t('chat:noChatSelected.createNew')}
             </Button>
           </div>
         )}
       </div>
 
-      {/* Contact Book Modal */}
       {showContactBook && (
-        <ContactBook
-          onClose={() => setShowContactBook(false)}
+        <ContactBook 
+          onClose={() => setShowContactBook(false)} 
           onChatCreated={handleChatCreated}
         />
       )}

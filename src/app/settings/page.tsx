@@ -1,8 +1,12 @@
-import { Button } from "../../components/ui/button"
-import { useTheme } from "next-themes"
+'use client';
+
+import { Button } from "../../components/ui/button";
+import { useTheme } from "next-themes";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function SettingsPage() {
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme } = useTheme();
+  const { t } = useTranslation('settings');
 
   return (
     <div className="space-y-6">
@@ -13,7 +17,7 @@ export default function SettingsPage() {
             TH
           </div>
           <div className="ml-4">
-            <h2 className="text-xl font-bold">Profil</h2>
+            <h2 className="text-xl font-bold">{t('profile.title')}</h2>
             <div className="space-y-2">
               <p className="text-muted-foreground">Tim Hanspaul</p>
               <p className="text-muted-foreground">+017647804845</p>
@@ -25,10 +29,10 @@ export default function SettingsPage() {
       {/* Profile Settings */}
       <div className="bg-card rounded-lg shadow">
         <div className="p-6">
-          <h2 className="text-lg font-semibold mb-4">Profil Einstellungen</h2>
+          <h2 className="text-lg font-semibold mb-4">{t('profile.settings')}</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-foreground">Name</label>
+              <label className="block text-sm font-medium text-foreground">{t('profile.name')}</label>
               <input
                 type="text"
                 className="mt-1 block w-full rounded-md border-border bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring"
@@ -36,7 +40,7 @@ export default function SettingsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-foreground">E-Mail</label>
+              <label className="block text-sm font-medium text-foreground">{t('profile.email')}</label>
               <input
                 type="email"
                 className="mt-1 block w-full rounded-md border-border bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring"
@@ -44,14 +48,13 @@ export default function SettingsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-foreground">Position</label>
+              <label className="block text-sm font-medium text-foreground">{t('profile.position')}</label>
               <input
                 type="text"
                 className="mt-1 block w-full rounded-md border-border bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring"
                 defaultValue="Geschäftsführer"
               />
             </div>
-            <Button>Speichern</Button>
           </div>
         </div>
       </div>
@@ -59,12 +62,12 @@ export default function SettingsPage() {
       {/* Notification Settings */}
       <div className="bg-card rounded-lg shadow">
         <div className="p-6">
-          <h2 className="text-lg font-semibold mb-4">Benachrichtigungen</h2>
+          <h2 className="text-lg font-semibold mb-4">{t('notifications.title')}</h2>
           <div className="space-y-4">
             <label className="flex items-center justify-between">
               <div>
-                <h3 className="font-medium">E-Mail Benachrichtigungen</h3>
-                <p className="text-sm text-muted-foreground">Erhalten Sie Updates per E-Mail</p>
+                <h3 className="font-medium">{t('notifications.email.title')}</h3>
+                <p className="text-sm text-muted-foreground">{t('notifications.email.description')}</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" className="sr-only peer" />
@@ -73,8 +76,8 @@ export default function SettingsPage() {
             </label>
             <label className="flex items-center justify-between">
               <div>
-                <h3 className="font-medium">WhatsApp Benachrichtigungen</h3>
-                <p className="text-sm text-muted-foreground">Erhalten Sie Updates per WhatsApp</p>
+                <h3 className="font-medium">{t('notifications.whatsapp.title')}</h3>
+                <p className="text-sm text-muted-foreground">{t('notifications.whatsapp.description')}</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" className="sr-only peer" defaultChecked />
@@ -88,23 +91,22 @@ export default function SettingsPage() {
       {/* Security Settings */}
       <div className="bg-card rounded-lg shadow">
         <div className="p-6">
-          <h2 className="text-lg font-semibold mb-4">Sicherheit</h2>
+          <h2 className="text-lg font-semibold mb-4">{t('security.title')}</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-foreground">Passwort ändern</label>
+              <label className="block text-sm font-medium text-foreground">{t('security.changePassword')}</label>
               <input
                 type="password"
                 className="mt-1 block w-full rounded-md border-border bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-foreground">Passwort bestätigen</label>
+              <label className="block text-sm font-medium text-foreground">{t('security.confirmPassword')}</label>
               <input
                 type="password"
                 className="mt-1 block w-full rounded-md border-border bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring"
               />
             </div>
-            <Button>Passwort ändern</Button>
           </div>
         </div>
       </div>
@@ -112,33 +114,31 @@ export default function SettingsPage() {
       {/* System Settings */}
       <div className="bg-card rounded-lg shadow">
         <div className="p-6">
-          <h2 className="text-lg font-semibold mb-4">System</h2>
+          <h2 className="text-lg font-semibold mb-4">{t('system.title')}</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-foreground">Sprache</label>
+              <label className="block text-sm font-medium text-foreground">{t('system.language')}</label>
               <select className="mt-1 block w-full rounded-md border-border bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring">
                 <option>Deutsch</option>
-                <option>English</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-foreground">Zeitzone</label>
+              <label className="block text-sm font-medium text-foreground">{t('system.timezone')}</label>
               <select className="mt-1 block w-full rounded-md border-border bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring">
                 <option>Europe/Berlin (GMT+1)</option>
-                <option>UTC</option>
               </select>
             </div>
             <label className="flex items-center justify-between">
               <div>
-                <h3 className="font-medium">Dark Mode</h3>
-                <p className="text-sm text-muted-foreground">Dunkles Erscheinungsbild aktivieren</p>
+                <h3 className="font-medium">{t('system.darkMode.title')}</h3>
+                <p className="text-sm text-muted-foreground">{t('system.darkMode.description')}</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  className="sr-only peer" 
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
                   checked={theme === 'dark'}
-                  onChange={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  onChange={(e) => setTheme(e.target.checked ? 'dark' : 'light')}
                 />
                 <div className="w-11 h-6 bg-muted peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-ring rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
@@ -147,5 +147,5 @@ export default function SettingsPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

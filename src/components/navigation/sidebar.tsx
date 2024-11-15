@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../ui/button';
 import { useTheme as useNextTheme } from 'next-themes';
@@ -120,6 +120,7 @@ function LanguageSelector({
 
 export function Sidebar({ isExpanded, setIsExpanded }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const { logout } = useAuth();
   const { getTextClass } = useTheme();
   const { theme, setTheme } = useNextTheme();
@@ -131,6 +132,7 @@ export function Sidebar({ isExpanded, setIsExpanded }: SidebarProps) {
   const handleLogout = async () => {
     try {
       await logout();
+      router.push('/auth/login');
     } catch (error) {
       console.error('Logout failed:', error);
     }

@@ -1,0 +1,31 @@
+{
+  "welcome": "Willkommen bei fundr.ai",
+  "status": {
+    "overtime": "Heute sind Überstunden zu erledigen",
+    "completed": "Alle Arbeit erledigt - Sie können nach Hause gehen!"
+  },
+  "criticalTasks": {
+    "title": "Kritische Aufgaben",
+    "empty": "Keine kritischen Aufgaben vorhanden",
+    "items": {
+      "campaign": "Kampagne XYZ benötigt Überprüfung",
+      "requests": "3 neue Anfragen warten auf Antwort",
+      "resources": "Ressourcen-Update erforderlich"
+    }
+  },
+  "quickAccess": {
+    "title": "Schnellzugriff",
+    "campaigns": {
+      "title": "Kampagnen verwalten",
+      "description": "Erstellen und bearbeiten Sie Ihre Fundraising-Kampagnen"
+    },
+    "requests": {
+      "title": "Anfragen bearbeiten",
+      "description": "Beantworten Sie offene Anfragen und Nachrichten"
+    },
+    "resources": {
+      "title": "Ressourcen aktualisieren",
+      "description": "Verwalten Sie Ihre verfügbaren Ressourcen"
+    }
+  }
+}

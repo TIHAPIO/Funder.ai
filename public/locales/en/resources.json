@@ -1,0 +1,39 @@
+{
+  "title": "Resources",
+  "categories": {
+    "employees": "Employees",
+    "equipment": "Equipment",
+    "clothing": "Clothing",
+    "vehicles": "Vehicles",
+    "districts": "Districts",
+    "accommodation": "Accommodation"
+  },
+  "actions": {
+    "addResource": "Add Resource",
+    "internalResources": "Internal Resources",
+    "externalResources": "External Resources"
+  },
+  "messages": {
+    "error": "Error!",
+    "loading": "Loading...",
+    "selectCategory": "Select a category from the list",
+    "noData": "No data available"
+  },
+  "filters": {
+    "title": "Filters",
+    "status": {
+      "available": "Available",
+      "inUse": "In Use",
+      "maintenance": "Maintenance"
+    },
+    "location": "Location",
+    "type": "Type"
+  },
+  "table": {
+    "name": "Name",
+    "status": "Status",
+    "location": "Location",
+    "lastUpdated": "Last Updated",
+    "actions": "Actions"
+  }
+}

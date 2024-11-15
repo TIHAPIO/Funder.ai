@@ -1,0 +1,50 @@
+{
+  "title": "Anfragen",
+  "actions": {
+    "filter": "Filter",
+    "sort": "Sortieren",
+    "approve": "Genehmigen",
+    "reject": "Ablehnen"
+  },
+  "status": {
+    "pending": "Ausstehend",
+    "approved": "Genehmigt",
+    "rejected": "Abgelehnt"
+  },
+  "types": {
+    "campaign": "Kampagne",
+    "resource": "Ressource",
+    "modification": "Änderung"
+  },
+  "details": {
+    "start": "Start",
+    "end": "Ende",
+    "teams": "Teams",
+    "tablets": "Benötigte Tablets",
+    "vehicles": "Fahrzeuge",
+    "quantity": "Anzahl",
+    "type": "Typ",
+    "period": "Zeitraum",
+    "campaign": "Kampagne",
+    "sizes": {
+      "m": "Größe M",
+      "l": "Größe L",
+      "xl": "Größe XL"
+    },
+    "deliveryDate": "Liefertermin"
+  },
+  "examples": {
+    "campaign": {
+      "title": "Neue Kampagne Nord-West",
+      "description": "Kampagnenstart in Hamburg und Bremen"
+    },
+    "resource": {
+      "title": "Neue Mietautos",
+      "description": "Zusätzliche Fahrzeuge für Kampagne Süd"
+    },
+    "modification": {
+      "title": "T-Shirt Nachbestellung",
+      "description": "Aufstockung des Bestands"
+    }
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "appName": "Fundr.ai",
+  "appNameShort": "F.ai",
+  "navigation": {
+    "home": "Startseite",
+    "campaigns": "Kampagnen",
+    "resources": "Ressourcen",
+    "chat": "Chat"
+  },
+  "actions": {
+    "add": "Hinzufügen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "confirm": "Bestätigen",
+    "close": "Schließen",
+    "retry": "Erneut versuchen",
+    "logout": "Abmelden"
+  },
+  "table": {
+    "dataTable": "Datentabelle",
+    "actions": "Aktionen",
+    "row": "Zeile",
+    "addRow": "Neue Zeile",
+    "deleteRow": "Zeile löschen",
+    "saveChanges": "Änderungen speichern",
+    "noData": "Keine Daten verfügbar",
+    "loading": "Lädt...",
+    "search": "Suchen...",
+    "filter": "Filter",
+    "itemsPerPage": "Einträge pro Seite",
+    "page": "Seite",
+    "of": "von",
+    "next": "Nächste",
+    "previous": "Vorherige",
+    "sortAscending": "Aufsteigend sortieren",
+    "sortDescending": "Absteigend sortieren",
+    "clearSort": "Sortierung aufheben"
+  },
+  "errors": {
+    "updateFailed": "Aktualisierung fehlgeschlagen",
+    "saveFailed": "Speichern fehlgeschlagen",
+    "addRowFailed": "Hinzufügen der Zeile fehlgeschlagen",
+    "deleteRowFailed": "Löschen der Zeile fehlgeschlagen",
+    "loadFailed": "Laden der Daten fehlgeschlagen",
+    "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten",
+    "networkError": "Netzwerkfehler - Bitte überprüfen Sie Ihre Internetverbindung",
+    "validationError": "Bitte überprüfen Sie Ihre Eingaben"
+  },
+  "status": {
+    "success": "Erfolgreich",
+    "error": "Fehler",
+    "warning": "Warnung",
+    "info": "Information",
+    "loading": "Lädt...",
+    "saving": "Speichert...",
+    "deleting": "Löscht...",
+    "processing": "Verarbeitet..."
+  },
+  "accessibility": {
+    "skipToContent": "Zum Inhalt springen",
+    "mainNavigation": "Hauptnavigation",
+    "closeMenu": "Menü schließen",
+    "openMenu": "Menü öffnen",
+    "darkMode": "Dunkelmodus umschalten",
+    "language": "Sprache ändern",
+    "search": "Suche",
+    "notifications": "Benachrichtigungen",
+    "userMenu": "Benutzermenü"
+  },
+  "keyboard": {
+    "shortcuts": {
+      "navigation": "Navigation: Pfeiltasten",
+      "select": "Auswählen: Enter oder Leertaste",
+      "delete": "Löschen: Strg + Entf",
+      "save": "Speichern: Strg + S",
+      "cancel": "Abbrechen: Esc"
+    }
+  }
+}

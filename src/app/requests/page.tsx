@@ -1,114 +1,103 @@
 'use client';
 
-import { Button } from "@/components/ui/button"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { 
-  CheckCircle2,
-  XCircle,
-  Calendar,
-  Car,
-  ShirtIcon,
-} from 'lucide-react'
-import { useTheme } from '@/components/providers/ThemeProvider'
-
-type RequestStatus = 'pending' | 'approved' | 'rejected';
-type RequestType = 'campaign' | 'resource' | 'modification';
-
-interface Request {
-  id: number;
-  type: RequestType;
-  title: string;
-  description: string;
-  status: RequestStatus;
-  requester: string;
-  date: string;
-  category?: string;
-  icon: any;
-  priority: 'high' | 'medium' | 'low';
-  details: Record<string, string | number>;
-}
+import { Button } from '@/components/ui/button';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { useTranslation } from '@/hooks/useTranslation';
+import { CheckCircle2, XCircle, Car, ShirtIcon, FileText } from 'lucide-react';
+import { LucideIcon } from 'lucide-react';
 
 export default function RequestsPage() {
-  const { getCardClass, getBadgeClass, getContainerClass, getTextClass } = useTheme();
+  const { t } = useTranslation('requests');
 
-  const requests: Request[] = [
+  const requests: {
+    id: string;
+    type: string;
+    title: string;
+    description: string;
+    status: string;
+    requester: string;
+    date: string;
+    category?: string;
+    icon: LucideIcon;
+    details: Record<string, string | number>;
+  }[] = [
     {
-      id: 1,
+      id: '1',
       type: 'campaign',
-      title: "Neue Kampagne Nord-West",
-      description: "Kampagnenstart in Hamburg und Bremen",
+      title: 'examples.campaign.title',
+      description: 'examples.campaign.description',
       status: 'pending',
       requester: "Max Mustermann",
       date: "2024-03-15",
-      icon: Calendar,
-      priority: 'high',
+      icon: FileText,
       details: {
-        "Start": "01.04.2024",
-        "Ende": "30.06.2024",
-        "Teams": 5,
-        "Benötigte Tablets": 10,
-        "Fahrzeuge": 3
+        [t('details.start')]: "01.04.2024",
+        [t('details.end')]: "30.06.2024",
+        [t('details.teams')]: 5,
+        [t('details.tablets')]: 10,
+        [t('details.vehicles')]: 3
       }
     },
     {
-      id: 2,
+      id: '2',
       type: 'resource',
-      title: "Neue Mietautos",
-      description: "Zusätzliche Fahrzeuge für Kampagne Süd",
+      title: 'examples.resource.title',
+      description: 'examples.resource.description',
       status: 'pending',
       requester: "Anna Schmidt",
       date: "2024-03-14",
-      category: "Fahrzeuge",
+      category: "vehicles",
       icon: Car,
-      priority: 'high',
       details: {
-        "Anzahl": 3,
-        "Typ": "VW Golf",
-        "Zeitraum": "01.04 - 30.05",
-        "Kampagne": "Süd"
+        [t('details.quantity')]: 3,
+        [t('details.type')]: "VW Golf",
+        [t('details.period')]: "01.04 - 30.05",
+        [t('details.campaign')]: "Süd"
       }
     },
     {
-      id: 3,
+      id: '3',
       type: 'modification',
-      title: "T-Shirt Nachbestellung",
-      description: "Aufstockung des Bestands",
+      title: 'examples.modification.title',
+      description: 'examples.modification.description',
       status: 'pending',
       requester: "Lisa Weber",
       date: "2024-03-13",
-      category: "Kleidung",
+      category: "clothing",
       icon: ShirtIcon,
-      priority: 'medium',
       details: {
-        "Größe M": 50,
-        "Größe L": 30,
-        "Größe XL": 20,
-        "Liefertermin": "25.03.2024"
+        [t('details.sizes.m')]: 50,
+        [t('details.sizes.l')]: 30,
+        [t('details.sizes.xl')]: 20,
+        [t('details.deliveryDate')]: "25.03.2024"
       }
     }
   ];
 
-  const getPriorityBadge = (priority: Request['priority']) => {
-    switch (priority) {
-      case 'high':
-        return getBadgeClass('error');
-      case 'medium':
-        return getBadgeClass('warning');
-      case 'low':
-        return getBadgeClass('success');
-    }
+  const getContainerClass = (type: string) => {
+    return type === 'header'
+      ? 'mb-6'
+      : 'bg-card p-6 rounded-lg shadow-sm';
+  };
+
+  const getCardClass = () => {
+    return 'bg-card p-4 rounded-lg shadow-sm';
+  };
+
+  const getTextClass = (type: string) => {
+    return type === 'muted' ? 'text-muted-foreground' : '';
   };
 
   return (
-    <div className={getContainerClass('base')}>
+    <>
       <div className={getContainerClass('header')}>
-        <h1 className="text-4xl font-bold">Anfragen</h1>
+        <h1 className="text-4xl font-bold">{t('title')}</h1>
         <div className="flex gap-2">
           <Button variant="outline">
-            Filter
+            {t('actions.filter')}
           </Button>
           <Button variant="outline">
-            Sortieren
+            {t('actions.sort')}
           </Button>
         </div>
       </div>
@@ -123,32 +112,25 @@ export default function RequestsPage() {
                     <request.icon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">{request.title}</h3>
-                    <p className={getTextClass('muted')}>{request.description}</p>
+                    <h3 className="text-lg font-semibold">{t(request.title)}</h3>
+                    <p className={getTextClass('muted')}>{t(request.description)}</p>
                     <div className="mt-2 flex items-center gap-4">
                       <span className={`text-sm ${getTextClass('muted')}`}>
-                        Von: {request.requester}
-                      </span>
-                      <span className={`text-sm ${getTextClass('muted')}`}>
-                        Datum: {request.date}
-                      </span>
-                      <span className={getPriorityBadge(request.priority)}>
-                        {request.priority === 'high' ? 'Hohe Priorität' : 
-                         request.priority === 'medium' ? 'Mittlere Priorität' : 
-                         'Niedrige Priorität'}
+                        {request.requester} • {request.date}
                       </span>
                     </div>
                   </div>
                 </div>
               </CollapsibleTrigger>
+
               <div className="flex items-center space-x-2">
                 <Button variant="outline" className="text-green-600 dark:text-green-400">
                   <CheckCircle2 className="h-4 w-4 mr-2" />
-                  Genehmigen
+                  {t('actions.approve')}
                 </Button>
                 <Button variant="outline" className="text-red-600 dark:text-red-400">
                   <XCircle className="h-4 w-4 mr-2" />
-                  Ablehnen
+                  {t('actions.reject')}
                 </Button>
               </div>
             </div>
@@ -166,6 +148,6 @@ export default function RequestsPage() {
           </Collapsible>
         ))}
       </div>
-    </div>
-  )
+    </>
+  );
 }

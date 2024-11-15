@@ -1,0 +1,85 @@
+{
+  "pageTitle": "Kampagnen Übersicht",
+  "views": {
+    "timeline": "Zeitstrahl",
+    "list": "Liste"
+  },
+  "actions": {
+    "zoomIn": "Vergrößern",
+    "zoomOut": "Verkleinern",
+    "previous": "Vorherige",
+    "next": "Nächste"
+  },
+  "controls": {
+    "toolbar": "Steuerungselemente",
+    "navigation": "Zeitraum Navigation",
+    "switchToTimeline": "Zur Zeitstrahl-Ansicht wechseln",
+    "switchToList": "Zur Listen-Ansicht wechseln",
+    "zoomIn": "In Zeitstrahl hineinzoomen",
+    "zoomOut": "Aus Zeitstrahl herauszoomen",
+    "previousPeriod": "Zum vorherigen Zeitraum",
+    "nextPeriod": "Zum nächsten Zeitraum"
+  },
+  "status": {
+    "active": "Aktiv",
+    "planned": "Geplant",
+    "completed": "Abgeschlossen",
+    "preparation": "In Vorbereitung"
+  },
+  "resources": {
+    "team": {
+      "title": "Team",
+      "openPositions": "{{count}} offene Positionen",
+      "status": "Team Status: {{current}}/{{max}} Mitglieder"
+    },
+    "accommodation": {
+      "title": "Unterkunft",
+      "status": "Unterkunft Status: {{confirmed}}/{{required}}"
+    },
+    "vehicles": {
+      "title": "Fahrzeuge",
+      "status": "Fahrzeug Status: {{confirmed}}/{{required}}"
+    },
+    "equipment": {
+      "title": "Ausrüstung",
+      "status": "Ausrüstung Status: {{confirmed}}/{{required}}"
+    }
+  },
+  "loading": {
+    "initializing": "Initialisiere...",
+    "loadingCampaigns": "Lade Kampagnen..."
+  },
+  "error": {
+    "title": "Ein Fehler ist aufgetreten",
+    "general": "Ein unerwarteter Fehler ist aufgetreten",
+    "retry": "Erneut versuchen",
+    "loadFailed": "Kampagnen konnten nicht geladen werden",
+    "networkError": "Netzwerkfehler - Bitte überprüfen Sie Ihre Internetverbindung"
+  },
+  "timeframe": {
+    "year": "Jahr {{year}}",
+    "month": "{{month}} {{year}}"
+  },
+  "accessibility": {
+    "campaignCard": {
+      "expand": "Kampagne erweitern",
+      "collapse": "Kampagne einklappen",
+      "details": "Details für {{name}}",
+      "location": "Standort: {{location}}",
+      "date": "Zeitraum: {{start}} bis {{end}}"
+    },
+    "timeline": {
+      "navigate": "Zeitstrahl navigieren",
+      "zoom": "Zoom-Level ändern",
+      "currentPeriod": "Aktueller Zeitraum: {{period}}"
+    }
+  },
+  "keyboard": {
+    "shortcuts": {
+      "title": "Tastaturkürzel",
+      "viewToggle": "Strg + V: Ansicht wechseln",
+      "zoomToggle": "Strg + Z: Zoom-Level ändern",
+      "navigation": "← →: Zeitraum navigieren"
+    }
+  }
+}

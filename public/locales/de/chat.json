@@ -1,0 +1,19 @@
+{
+  "newChat": "Neuer Chat",
+  "contactBook": "Kontaktbuch",
+  "noChatSelected": {
+    "title": "Kein Chat ausgewählt",
+    "description": "Wähle einen Chat aus der Seitenleiste oder erstelle einen neuen Chat",
+    "createNew": "Neuen Chat erstellen"
+  },
+  "groupChat": "Gruppenchat",
+  "unreadMessages": "{{count}} ungelesen",
+  "loading": "Lade Chats...",
+  "loginRequired": "Bitte melden Sie sich an, um auf den Chat zuzugreifen.",
+  "actions": {
+    "create": "Neuen Chat erstellen",
+    "delete": "Chat löschen",
+    "leave": "Chat verlassen",
+    "invite": "Mitglieder einladen"
+  }
+}

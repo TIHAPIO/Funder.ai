@@ -1,286 +1,93 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/ui/data-table";
-import { 
-  Plus, 
-  ShirtIcon, 
-  Package, 
-  Car, 
-  Building, 
-  Users, 
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { DataTable } from '@/components/ui/data-table';
+import {
+  Plus,
+  Users,
+  Package,
+  Car,
+  Building,
   Home,
-  ExternalLink,
   FolderHeart,
-  Loader2
+  ExternalLink,
+  Loader2,
 } from 'lucide-react';
-import { useTheme } from "@/components/providers/ThemeProvider";
-import { 
-  employeeService, 
-  equipmentService, 
-  vehicleService, 
-  accommodationService, 
-  redCrossOfficeService 
-} from '@/lib/services/resources';
-import type { 
-  Employee, 
-  Equipment, 
-  Vehicle, 
-  Accommodation, 
-  RedCrossOffice 
-} from '@/types/resources';
-import { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
+import { useTheme } from '@/components/providers/ThemeProvider';
+import { useTranslation } from '@/hooks/useTranslation';
+import { ShirtIcon } from 'lucide-react';
 
-type Resource = Employee | Equipment | Vehicle | Accommodation | RedCrossOffice;
-
-interface CategoryConfig {
-  title: string;
-  icon: any;
-  key: 'employees' | 'equipment' | 'clothing' | 'vehicles' | 'districts' | 'accommodations';
-  resourceType: 'internal' | 'external';
-  service: any;
-  headers: string[];
-}
-
-const categories: CategoryConfig[] = [
+const categories = [
   {
-    title: "Mitarbeiter",
+    title: "categories.employees",
     icon: Users,
-    key: 'employees',
-    resourceType: 'internal',
-    service: employeeService,
-    headers: ['Name', 'Status', 'Rolle', 'Kampagne', 'Ausrüstung', 'Kontakt']
   },
   {
-    title: "Ausrüstung",
+    title: "categories.equipment",
     icon: Package,
-    key: 'equipment',
-    resourceType: 'internal',
-    service: equipmentService,
-    headers: ['Name', 'Typ', 'Status', 'Zugewiesen an', 'Seriennummer', 'Verfügbar']
   },
   {
-    title: "Kleidung",
+    title: "categories.clothing",
     icon: ShirtIcon,
-    key: 'clothing',
-    resourceType: 'internal',
-    service: equipmentService,
-    headers: ['Artikel', 'Größe', 'Status', 'Verfügbar', 'Gesamt']
   },
   {
-    title: "Fahrzeuge",
+    title: "categories.vehicles",
     icon: Car,
-    key: 'vehicles',
-    resourceType: 'external',
-    service: vehicleService,
-    headers: ['Name', 'Status', 'Typ', 'Kennzeichen', 'Kampagne', 'Wartung']
   },
   {
-    title: "Kreisverbände",
+    title: "categories.districts",
     icon: Building,
-    key: 'districts',
-    resourceType: 'external',
-    service: redCrossOfficeService,
-    headers: ['Name', 'Status', 'Stadt', 'Kapazität', 'Kontakt']
   },
   {
-    title: "Unterkünfte",
+    title: "categories.accommodation",
     icon: Home,
-    key: 'accommodations',
-    resourceType: 'external',
-    service: accommodationService,
-    headers: ['Name', 'Typ', 'Stadt', 'Verfügbar', 'Kampagne', 'Kontakt']
-  }
+  },
 ];
 
-const formatResourceData = (data: Resource[]): (string | number)[][] => {
-  return data.map(item => {
-    switch(true) {
-      case 'role' in item: // Employee
-        const employee = item as Employee;
-        return [
-          employee.name,
-          employee.status,
-          employee.role,
-          employee.campaignId?.toString() || '-',
-          `${employee.equipment?.tablet || '-'}, ${employee.equipment?.clothing?.shirtSize || '-'}`,
-          employee.contact?.email || '-'
-        ];
-      case 'serialNumber' in item: // Equipment
-        const equipment = item as Equipment;
-        if (equipment.type === 'clothing') {
-          return [
-            equipment.name,
-            equipment.details?.size || '-',
-            equipment.status,
-            equipment.quantity?.available.toString() || '0',
-            equipment.quantity?.total.toString() || '0'
-          ];
-        }
-        return [
-          equipment.name,
-          equipment.type,
-          equipment.status,
-          equipment.assignedTo?.toString() || '-',
-          equipment.serialNumber || '-',
-          `${equipment.quantity?.available}/${equipment.quantity?.total}`
-        ];
-      case 'licensePlate' in item: // Vehicle
-        const vehicle = item as Vehicle;
-        return [
-          vehicle.name,
-          vehicle.status,
-          vehicle.type,
-          vehicle.licensePlate,
-          vehicle.campaignId?.toString() || '-',
-          vehicle.maintenance?.nextService || '-'
-        ];
-      case 'teams' in item: // RedCrossOffice
-        const office = item as RedCrossOffice;
-        return [
-          office.name,
-          office.status,
-          office.location.city,
-          `${office.capacity.teams}/${office.capacity.campaigns}`,
-          office.contact.email
-        ];
-      case 'booking' in item: // Accommodation
-        const accommodation = item as Accommodation;
-        return [
-          accommodation.name,
-          accommodation.type,
-          accommodation.location.city,
-          `${accommodation.capacity.available}/${accommodation.capacity.total}`,
-          accommodation.campaignId?.toString() || '-',
-          accommodation.contact.email
-        ];
-      default:
-        return [];
-    }
-  });
-};
-
 export default function ResourcesPage() {
-  const { getCardClass, getContainerClass } = useTheme();
-  const [resourceType, setResourceType] = useState<'internal' | 'external'>('internal');
-  const [selectedCategory, setSelectedCategory] = useState<CategoryConfig | null>(null);
-  const [data, setData] = useState<Resource[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { t } = useTranslation('resources');
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
-  const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState(categories[0]);
+  const [filteredCategories] = useState(categories);
 
-  useEffect(() => {
-    if (selectedCategory) {
-      // Reset pagination when category changes
-      setCurrentPage(1);
-      setHasMore(false);
-      setLastDoc(null);
-      setData([]);
-      fetchData();
-    }
-  }, [selectedCategory]);
-
-  const fetchData = async () => {
-    if (!selectedCategory) return;
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      let result;
-      switch (selectedCategory.key) {
-        case 'employees':
-          result = await employeeService.getAllEmployees(currentPage);
-          break;
-        case 'equipment':
-          result = await equipmentService.getAllEquipment(currentPage);
-          break;
-        case 'clothing':
-          result = await equipmentService.getEquipmentByType('clothing', currentPage);
-          break;
-        case 'vehicles':
-          result = await vehicleService.getAllVehicles(currentPage);
-          break;
-        case 'districts':
-          result = await redCrossOfficeService.getAllOffices(currentPage);
-          break;
-        case 'accommodations':
-          result = await accommodationService.getAllAccommodations(currentPage);
-          break;
-        default:
-          result = { items: [], lastDoc: null, hasMore: false };
-      }
-      
-      setData(currentPage === 1 ? result.items : [...data, ...result.items]);
-      setLastDoc(result.lastDoc);
-      setHasMore(result.hasMore);
-    } catch (err) {
-      console.error('Error fetching data:', err);
-      setError('Fehler beim Laden der Daten');
-    } finally {
-      setLoading(false);
-    }
+  const getContainerClass = (type: string) => {
+    return type === 'header'
+      ? 'mb-6'
+      : 'bg-card p-6 rounded-lg shadow-sm';
   };
-
-  const loadMore = async () => {
-    if (lastDoc) {
-      setCurrentPage(currentPage + 1);
-      await fetchData();
-    }
-  };
-
-  const handleSaveData = async (updatedData: (string | number)[][]) => {
-    if (!selectedCategory) return;
-    
-    try {
-      // TODO: Implement save functionality with Firebase
-      // This will require mapping the table data back to the proper resource type
-      // and using the appropriate service to update
-      await fetchData();
-    } catch (error) {
-      console.error('Error saving data:', error);
-      setError('Fehler beim Speichern der Daten');
-    }
-  };
-
-  const filteredCategories = categories.filter(category => 
-    category.resourceType === resourceType
-  );
 
   return (
-    <div className={getContainerClass('base')}>
+    <>
       <div className={getContainerClass('header')}>
         <div className="flex flex-col gap-2">
-          <h1 className="text-4xl font-bold">Ressourcen</h1>
+          <h1 className="text-4xl font-bold">{t('title')}</h1>
           <div className="flex gap-2">
-            <Button 
-              variant={resourceType === 'internal' ? 'default' : 'outline'}
-              onClick={() => setResourceType('internal')}
+            <Button
+              variant="outline"
             >
               <FolderHeart className="mr-2 h-4 w-4" />
-              Interne Ressourcen
+              {t('actions.internalResources')}
             </Button>
-            <Button 
-              variant={resourceType === 'external' ? 'default' : 'outline'}
-              onClick={() => setResourceType('external')}
+            <Button
+              variant="outline"
             >
               <ExternalLink className="mr-2 h-4 w-4" />
-              Externe Ressourcen
+              {t('actions.externalResources')}
             </Button>
           </div>
         </div>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
-          Ressource hinzufügen
+          {t('actions.addResource')}
         </Button>
       </div>
 
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-          <strong className="font-bold">Fehler!</strong>
+          <strong className="font-bold">{t('messages.error')}</strong>
           <span className="block sm:inline"> {error}</span>
         </div>
       )}
@@ -289,18 +96,20 @@ export default function ResourcesPage() {
         {/* Categories sidebar */}
         <div className="w-64 space-y-2">
           {filteredCategories.map((category) => (
-            <div 
-              key={category.title} 
-              className={`${getCardClass()} cursor-pointer transition-transform hover:scale-105 ${
-                selectedCategory?.key === category.key ? 'ring-2 ring-blue-500' : ''
-              }`}
+            <button
+              key={category.title}
               onClick={() => setSelectedCategory(category)}
+              className={`w-full p-3 rounded-lg text-left transition-colors ${
+                selectedCategory === category
+                  ? 'bg-accent'
+                  : 'hover:bg-accent/50'
+              }`}
             >
               <div className="flex items-center">
                 <category.icon className="h-5 w-5 text-blue-500 dark:text-blue-400 mr-2" />
-                <h2 className="text-sm font-semibold">{category.title}</h2>
+                <h2 className="text-sm font-semibold">{t(category.title)}</h2>
               </div>
-            </div>
+            </button>
           ))}
         </div>
 
@@ -315,38 +124,18 @@ export default function ResourcesPage() {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center">
                   <selectedCategory.icon className="h-6 w-6 text-blue-500 dark:text-blue-400 mr-2" />
-                  <h2 className="text-xl font-semibold">{selectedCategory.title}</h2>
+                  <h2 className="text-xl font-semibold">{t(selectedCategory.title)}</h2>
                 </div>
               </div>
-              
-              <DataTable
-                headers={selectedCategory.headers}
-                data={formatResourceData(data)}
-                editable={true}
-                onSave={handleSaveData}
-              />
-
-              {hasMore && (
-                <div className="mt-4 flex justify-center">
-                  <Button 
-                    onClick={loadMore}
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : null}
-                    Mehr laden
-                  </Button>
-                </div>
-              )}
+              {/* Resource table or grid would go here */}
             </div>
           ) : (
             <div className="flex items-center justify-center h-64 text-gray-500">
-              Wählen Sie eine Kategorie aus der Liste aus
+              {t('messages.selectCategory')}
             </div>
           )}
         </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -1,0 +1,39 @@
+{
+  "title": "Ressourcen",
+  "categories": {
+    "employees": "Mitarbeiter",
+    "equipment": "Ausrüstung",
+    "clothing": "Kleidung",
+    "vehicles": "Fahrzeuge",
+    "districts": "Kreisverbände",
+    "accommodation": "Unterkünfte"
+  },
+  "actions": {
+    "addResource": "Ressource hinzufügen",
+    "internalResources": "Interne Ressourcen",
+    "externalResources": "Externe Ressourcen"
+  },
+  "messages": {
+    "error": "Fehler!",
+    "loading": "Lädt...",
+    "selectCategory": "Wählen Sie eine Kategorie aus der Liste aus",
+    "noData": "Keine Daten verfügbar"
+  },
+  "filters": {
+    "title": "Filter",
+    "status": {
+      "available": "Verfügbar",
+      "inUse": "In Benutzung",
+      "maintenance": "Wartung"
+    },
+    "location": "Standort",
+    "type": "Typ"
+  },
+  "table": {
+    "name": "Name",
+    "status": "Status",
+    "location": "Standort",
+    "lastUpdated": "Zuletzt aktualisiert",
+    "actions": "Aktionen"
+  }
+}

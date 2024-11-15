@@ -7,74 +7,44 @@ service cloud.firestore {
       return request.auth != null;
     }
     
-    function isAdmin() {
-      return isAuthenticated() && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
-    }
-    
-    function isTeamLeader() {
-      return isAuthenticated() && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'teamleader';
-    }
-
     function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
+      return request.auth.uid == userId;
     }
 
-    function isAssignedToCampaign(campaignId) {
-      return isAuthenticated() && 
-        exists(/databases/$(database)/documents/campaigns/$(campaignId)/team/$(request.auth.uid));
-    }
-
-    // Base collection rules
+    // User profiles
     match /users/{userId} {
       allow read: if isAuthenticated();
-      allow write: if isAdmin() || isOwner(userId);
+      allow write: if isOwner(userId);
     }
 
-    // Campaign related collections
+    // Campaigns
     match /campaigns/{campaignId} {
       allow read: if isAuthenticated();
-      allow create, update: if isAdmin() || isTeamLeader();
-      allow delete: if isAdmin();
-
-      match /team/{memberId} {
-        allow read: if isAuthenticated();
-        allow write: if isAdmin() || isTeamLeader();
-      }
-    }
-
-    // Resource collections
-    match /employees/{employeeId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin() || isTeamLeader();
-    }
-
-    match /equipment/{equipmentId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin() || isTeamLeader();
-    }
-
-    match /vehicles/{vehicleId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin() || isTeamLeader();
-    }
-
-    match /accommodations/{accommodationId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin() || isTeamLeader();
-    }
-
-    match /redCrossOffices/{officeId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
-    }
-
-    // Audit logs for tracking changes
-    match /audit/{logId} {
-      allow read: if isAdmin();
       allow create: if isAuthenticated();
-      allow update, delete: if false; // Audit logs are immutable
+      allow update, delete: if isAuthenticated() && 
+        (resource.data.createdBy == request.auth.uid);
+    }
+
+    // Resources
+    match /resources/{resourceId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() && 
+        (resource.data.createdBy == request.auth.uid);
+    }
+
+    // Chat messages
+    match /chats/{chatId} {
+      allow read: if isAuthenticated() && 
+        (resource.data.participants[request.auth.uid] == true);
+      allow create: if isAuthenticated();
+      
+      match /messages/{messageId} {
+        allow read: if isAuthenticated() && 
+          get(/databases/$(database)/documents/chats/$(chatId)).data.participants[request.auth.uid] == true;
+        allow create: if isAuthenticated() && 
+          get(/databases/$(database)/documents/chats/$(chatId)).data.participants[request.auth.uid] == true;
+      }
     }
   }
 }

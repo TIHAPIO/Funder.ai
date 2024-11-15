@@ -1,0 +1,81 @@
+{
+  "appName": "Fundr.ai",
+  "appNameShort": "F.ai",
+  "navigation": {
+    "home": "Home",
+    "campaigns": "Campaigns",
+    "resources": "Resources",
+    "chat": "Chat"
+  },
+  "actions": {
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "close": "Close",
+    "retry": "Retry",
+    "logout": "Logout"
+  },
+  "table": {
+    "dataTable": "Data Table",
+    "actions": "Actions",
+    "row": "Row",
+    "addRow": "Add Row",
+    "deleteRow": "Delete Row",
+    "saveChanges": "Save Changes",
+    "noData": "No data available",
+    "loading": "Loading...",
+    "search": "Search...",
+    "filter": "Filter",
+    "itemsPerPage": "Items per page",
+    "page": "Page",
+    "of": "of",
+    "next": "Next",
+    "previous": "Previous",
+    "sortAscending": "Sort Ascending",
+    "sortDescending": "Sort Descending",
+    "clearSort": "Clear Sort"
+  },
+  "errors": {
+    "updateFailed": "Update failed",
+    "saveFailed": "Save failed",
+    "addRowFailed": "Failed to add row",
+    "deleteRowFailed": "Failed to delete row",
+    "loadFailed": "Failed to load data",
+    "unexpectedError": "An unexpected error occurred",
+    "networkError": "Network error - Please check your internet connection",
+    "validationError": "Please check your input"
+  },
+  "status": {
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Information",
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "deleting": "Deleting...",
+    "processing": "Processing..."
+  },
+  "accessibility": {
+    "skipToContent": "Skip to content",
+    "mainNavigation": "Main navigation",
+    "closeMenu": "Close menu",
+    "openMenu": "Open menu",
+    "darkMode": "Toggle dark mode",
+    "language": "Change language",
+    "search": "Search",
+    "notifications": "Notifications",
+    "userMenu": "User menu"
+  },
+  "keyboard": {
+    "shortcuts": {
+      "navigation": "Navigation: Arrow keys",
+      "select": "Select: Enter or Space",
+      "delete": "Delete: Ctrl + Del",
+      "save": "Save: Ctrl + S",
+      "cancel": "Cancel: Esc"
+    }
+  }
+}

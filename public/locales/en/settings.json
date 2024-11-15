@@ -1,0 +1,44 @@
+{
+  "title": "Settings",
+  "sections": {
+    "general": "General"
+  },
+  "theme": {
+    "options": {
+      "dark": "Dark Mode",
+      "light": "Light Mode"
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "settings": "Profile Settings",
+    "name": "Name",
+    "email": "Email",
+    "position": "Position"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "email": {
+      "title": "Email Notifications",
+      "description": "Receive updates via email"
+    },
+    "whatsapp": {
+      "title": "WhatsApp Notifications",
+      "description": "Receive updates via WhatsApp"
+    }
+  },
+  "security": {
+    "title": "Security",
+    "changePassword": "Change Password",
+    "confirmPassword": "Confirm Password"
+  },
+  "system": {
+    "title": "System",
+    "language": "Language",
+    "timezone": "Timezone",
+    "darkMode": {
+      "title": "Dark Mode",
+      "description": "Enable dark appearance"
+    }
+  }
+}

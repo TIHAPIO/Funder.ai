@@ -1,0 +1,19 @@
+{
+  "newChat": "New Chat",
+  "contactBook": "Contact Book",
+  "noChatSelected": {
+    "title": "No Chat Selected",
+    "description": "Select a chat from the sidebar or create a new chat",
+    "createNew": "Create New Chat"
+  },
+  "groupChat": "Group Chat",
+  "unreadMessages": "{{count}} unread",
+  "loading": "Loading chats...",
+  "loginRequired": "Please log in to access chat.",
+  "actions": {
+    "create": "Create New Chat",
+    "delete": "Delete Chat",
+    "leave": "Leave Chat",
+    "invite": "Invite Members"
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "pageTitle": "Campaign Overview",
+  "views": {
+    "timeline": "Timeline",
+    "list": "List"
+  },
+  "actions": {
+    "zoomIn": "Zoom In",
+    "zoomOut": "Zoom Out",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "controls": {
+    "toolbar": "Control Elements",
+    "navigation": "Period Navigation",
+    "switchToTimeline": "Switch to Timeline View",
+    "switchToList": "Switch to List View",
+    "zoomIn": "Zoom into Timeline",
+    "zoomOut": "Zoom out of Timeline",
+    "previousPeriod": "Go to Previous Period",
+    "nextPeriod": "Go to Next Period"
+  },
+  "status": {
+    "active": "Active",
+    "planned": "Planned",
+    "completed": "Completed",
+    "preparation": "In Preparation"
+  },
+  "resources": {
+    "team": {
+      "title": "Team",
+      "openPositions": "{{count}} open positions",
+      "status": "Team Status: {{current}}/{{max}} members"
+    },
+    "accommodation": {
+      "title": "Accommodation",
+      "status": "Accommodation Status: {{confirmed}}/{{required}}"
+    },
+    "vehicles": {
+      "title": "Vehicles",
+      "status": "Vehicle Status: {{confirmed}}/{{required}}"
+    },
+    "equipment": {
+      "title": "Equipment",
+      "status": "Equipment Status: {{confirmed}}/{{required}}"
+    }
+  },
+  "loading": {
+    "initializing": "Initializing...",
+    "loadingCampaigns": "Loading Campaigns..."
+  },
+  "error": {
+    "title": "An Error Occurred",
+    "general": "An unexpected error occurred",
+    "retry": "Try Again",
+    "loadFailed": "Failed to load campaigns",
+    "networkError": "Network error - Please check your internet connection"
+  },
+  "timeframe": {
+    "year": "Year {{year}}",
+    "month": "{{month}} {{year}}"
+  },
+  "accessibility": {
+    "campaignCard": {
+      "expand": "Expand Campaign",
+      "collapse": "Collapse Campaign",
+      "details": "Details for {{name}}",
+      "location": "Location: {{location}}",
+      "date": "Period: {{start}} to {{end}}"
+    },
+    "timeline": {
+      "navigate": "Navigate Timeline",
+      "zoom": "Change Zoom Level",
+      "currentPeriod": "Current Period: {{period}}"
+    }
+  },
+  "keyboard": {
+    "shortcuts": {
+      "title": "Keyboard Shortcuts",
+      "viewToggle": "Ctrl + V: Toggle View",
+      "zoomToggle": "Ctrl + Z: Toggle Zoom Level",
+      "navigation": "← →: Navigate Period"
+    }
+  }
+}

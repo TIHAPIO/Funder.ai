@@ -1,42 +1,62 @@
 rules_version = '2';
+
 service firebase.storage {
   match /b/{bucket}/o {
     // Helper functions
-    function isSignedIn() {
+    function isAuthenticated() {
       return request.auth != null;
     }
     
-    function isUserInRoom(roomId) {
-      return isSignedIn() && 
-        exists(/databases/$(database)/documents/chatRooms/$(roomId)) &&
-        request.auth.uid in get(/databases/$(database)/documents/chatRooms/$(roomId)).data.participants;
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isValidContentType() {
+      return request.resource.contentType.matches('image/.*') ||
+             request.resource.contentType.matches('application/pdf') ||
+             request.resource.contentType.matches('application/msword') ||
+             request.resource.contentType.matches('application/vnd.openxmlformats-officedocument.wordprocessingml.document') ||
+             request.resource.contentType.matches('text/plain');
+    }
+    
+    function isValidFileSize() {
+      return request.resource.size <= 10 * 1024 * 1024; // 10MB max
     }
 
-    // Chat attachments rules
-    match /chat-attachments/{roomId}/{messageId}/{fileName} {
-      allow read: if isUserInRoom(roomId);
-      allow create: if isUserInRoom(roomId) &&
-        request.auth.uid == request.resource.metadata.senderId &&
-        request.resource.size < 10 * 1024 * 1024 && // 10MB max file size
-        (
-          // Allow only specific file types
-          request.resource.contentType.matches('image/.*') ||
-          request.resource.contentType.matches('application/pdf') ||
-          request.resource.contentType.matches('application/msword') ||
-          request.resource.contentType.matches('application/vnd.openxmlformats-officedocument.wordprocessingml.document') ||
-          request.resource.contentType.matches('text/plain')
-        );
-      allow delete: if isUserInRoom(roomId) &&
-        request.auth.uid == resource.metadata.senderId;
+    // Chat attachments
+    match /chats/{chatId}/{allPaths=**} {
+      allow read: if isAuthenticated() &&
+        exists(/databases/$(database)/documents/chats/$(chatId)/participants/$(request.auth.uid));
+      allow write: if isAuthenticated() &&
+        exists(/databases/$(database)/documents/chats/$(chatId)/participants/$(request.auth.uid)) &&
+        isValidContentType() &&
+        isValidFileSize();
     }
 
-    // User avatars
-    match /user-avatars/{userId} {
-      allow read: if isSignedIn();
-      allow write: if isSignedIn() && 
-        request.auth.uid == userId &&
-        request.resource.size < 5 * 1024 * 1024 && // 5MB max file size
-        request.resource.contentType.matches('image/.*');
+    // Campaign resources
+    match /campaigns/{campaignId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() &&
+        exists(/databases/$(database)/documents/campaigns/$(campaignId)) &&
+        isValidContentType() &&
+        isValidFileSize();
+    }
+
+    // User profile images
+    match /users/{userId}/profile/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isOwner(userId) &&
+        request.resource.contentType.matches('image/.*') &&
+        request.resource.size <= 5 * 1024 * 1024; // 5MB max for profile images
+    }
+
+    // Resource attachments
+    match /resources/{resourceId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() &&
+        exists(/databases/$(database)/documents/resources/$(resourceId)) &&
+        isValidContentType() &&
+        isValidFileSize();
     }
   }
 }

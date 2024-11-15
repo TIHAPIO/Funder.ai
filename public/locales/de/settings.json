@@ -1,0 +1,44 @@
+{
+  "title": "Einstellungen",
+  "sections": {
+    "general": "Allgemein"
+  },
+  "theme": {
+    "options": {
+      "dark": "Dunkelmodus",
+      "light": "Hellmodus"
+    }
+  },
+  "profile": {
+    "title": "Profil",
+    "settings": "Profil Einstellungen",
+    "name": "Name",
+    "email": "E-Mail",
+    "position": "Position"
+  },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "email": {
+      "title": "E-Mail Benachrichtigungen",
+      "description": "Erhalten Sie Updates per E-Mail"
+    },
+    "whatsapp": {
+      "title": "WhatsApp Benachrichtigungen",
+      "description": "Erhalten Sie Updates per WhatsApp"
+    }
+  },
+  "security": {
+    "title": "Sicherheit",
+    "changePassword": "Passwort ändern",
+    "confirmPassword": "Passwort bestätigen"
+  },
+  "system": {
+    "title": "System",
+    "language": "Sprache",
+    "timezone": "Zeitzone",
+    "darkMode": {
+      "title": "Dark Mode",
+      "description": "Dunkles Erscheinungsbild aktivieren"
+    }
+  }
+}
