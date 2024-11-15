@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { useTranslation } from '@/hooks/useTranslation';
+import { useState, useEffect } from 'react';
+import { useAuth } from '../../../context/AuthContext';
+import { useTranslation } from '../../../hooks/useTranslation';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from '../../../components/ui/button';
+import { Input } from '../../../components/ui/input';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -15,9 +15,16 @@ export default function SignupPage() {
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { signup } = useAuth();
+  const { signup, user } = useAuth();
   const router = useRouter();
   const { t } = useTranslation('auth');
+
+  // Redirect to campaigns if user is already authenticated
+  useEffect(() => {
+    if (user) {
+      router.push('/campaigns');
+    }
+  }, [user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +44,8 @@ export default function SignupPage() {
 
     try {
       await signup(email, password, displayName);
-      router.push('/');
+      // No need to manually redirect here - useEffect will handle it
+      // once the auth state updates
     } catch (error) {
       setError(t('errors.signup'));
       console.error('Signup error:', error);

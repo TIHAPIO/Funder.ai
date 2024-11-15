@@ -41,9 +41,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
       setLoading(false);
+
+      // If user is logged in, get the ID token and set session cookie
+      if (user) {
+        const idToken = await user.getIdToken();
+        // Set session cookie
+        document.cookie = `session=${idToken}; path=/;`;
+      } else {
+        // Clear session cookie when logged out
+        document.cookie = 'session=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+      }
     });
 
     return () => unsubscribe();
@@ -101,9 +111,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      if (!auth.currentUser) {
-        await signInWithEmailAndPassword(auth, email, password);
-      }
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      // Get the ID token right after login
+      const idToken = await userCredential.user.getIdToken();
+      // Set session cookie
+      document.cookie = `session=${idToken}; path=/;`;
     } catch (error) {
       handleAuthError(error);
     }
@@ -120,6 +132,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await updateProfile(userCredential.user, {
           displayName: displayName
         });
+        // Get the ID token right after signup
+        const idToken = await userCredential.user.getIdToken();
+        // Set session cookie
+        document.cookie = `session=${idToken}; path=/;`;
       }
     } catch (error) {
       handleAuthError(error);
@@ -129,9 +145,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     try {
       await signOut(auth);
-      await fetch('/api/auth/session', {
-        method: 'DELETE',
-      });
+      // Clear session cookie
+      document.cookie = 'session=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
     } catch (error) {
       handleAuthError(error);
     }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../../context/AuthContext';
@@ -10,21 +10,16 @@ import { Input } from '../../../components/ui/input';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { user, login } = useAuth();
+  const { login } = useAuth();
   const { t } = useTranslation('auth');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      router.push('/');
-    }
-  }, [user, router]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Form submitted'); // Debug log
     setError('');
     setIsLoading(true);
 
@@ -37,11 +32,17 @@ export default function LoginPage() {
         throw new Error(t('errors.requiredField'));
       }
 
+      console.log('Attempting login...'); // Debug log
       // Attempt login
       await login(email.trim(), password.trim());
-      router.push('/');
+      console.log('Login successful, redirecting...'); // Debug log
+      
+      // Redirect immediately after successful login
+      router.push('/campaigns');
+      router.refresh();
+      
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Login error:', error); // Debug log
       if (error instanceof Error) {
         // Use the specific error message from Firebase/Auth context
         setError(error.message);

@@ -2,7 +2,6 @@
 
 import { Inter } from 'next/font/google';
 import { I18nProvider } from '../providers/i18n-provider';
-import { ThemeProvider } from '../components/providers/ThemeProvider';
 import { Providers } from '../components/providers/Providers';
 import { MainLayout } from '../components/templates/main-layout';
 import { usePathname } from 'next/navigation';
@@ -26,19 +25,17 @@ export default function RootLayout({
       <body className={inter.className}>
         <Providers>
           <I18nProvider>
-            <ThemeProvider>
-              {isAuthPage ? (
-                <div className="min-h-screen flex flex-col">
-                  <main className="flex-1">
-                    {children}
-                  </main>
-                </div>
-              ) : (
-                <MainLayout>
+            {isAuthPage ? (
+              <div className="min-h-screen flex flex-col">
+                <main className="flex-1">
                   {children}
-                </MainLayout>
-              )}
-            </ThemeProvider>
+                </main>
+              </div>
+            ) : (
+              <MainLayout>
+                {children}
+              </MainLayout>
+            )}
           </I18nProvider>
         </Providers>
       </body>
